@@ -1,29 +1,47 @@
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget{
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Seja bem vindo!")),
+      appBar: AppBar(centerTitle: true, title: const Text("Login")),
       body: Center(
         child: SizedBox(
           width: 250,
           child: Column(
+            spacing: 30,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Text(
+                "Entre no app",
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
               TextField(
-                decoration: InputDecoration(border: OutlineInputBorder(), labelText: "Email"),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Email",
+                ),
               ),
               TextField(
                 obscureText: true,
-                decoration: InputDecoration(border: OutlineInputBorder(), labelText: "Senha"),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Senha",
+                ),
               ),
-              Row(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  FilledButton(onPressed: () {}, child: const Text("Login")),
-                  OutlinedButton(onPressed: () {}, child: const Text("Login com Google"))
+                  FilledButton(
+                    onPressed: () {},
+                    child: const Text("Login"),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {},
+                    child: const Text("Login com Google"),
+                  ),
                 ],
               ),
             ],
