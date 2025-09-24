@@ -31,18 +31,34 @@ class LoginPage extends StatelessWidget {
                   labelText: "Senha",
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FilledButton(
-                    onPressed: () {},
-                    child: const Text("Login"),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text("Login com Google"),
-                  ),
-                ],
+              SizedBox(
+                width: 225,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 76, 175, 79),
+                        padding: EdgeInsets.all(10),
+                        maximumSize: Size(300.0, 50.0),
+                        minimumSize: Size(200.0, 50.0),
+                        shadowColor: Color.fromARGB(255, 255, 255, 255),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {},
+                      child: const Text("Login com Google"),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
