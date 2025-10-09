@@ -6,26 +6,98 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF0FDF4),
-      body: Center(
-        child: SizedBox(
-          width: 350,
-          height: 600,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment(0.8, 1),
+            colors: <Color>[Color(0xffF0FDF4), Color(0xffEFF6FF)],
+            tileMode: TileMode.mirror,
+          ),
+        ),
+        child: Center(
           child: Container(
-            constraints: BoxConstraints.expand(
-              height:
-                  Theme.of(context).textTheme.headlineMedium!.fontSize! * 1.1 +
-                  200.0,
-            ),
+            height: 500,
+            width: 340,
             decoration: BoxDecoration(
-              color: Colors.red,
-              border: Border.all(color: Colors.blueAccent),
               borderRadius: BorderRadius.circular(15),
+              color: Color(0xffFFFFFF),
+              border: Border.all(
+                width: 1.0,
+                color: const Color.fromARGB(26, 0, 0, 0),
+              ),
             ),
-            padding: const EdgeInsets.all(8.0),
-            alignment: Alignment.center,
             child: Column(
-                
+              children: [
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Color(0xffFFFFFF),
+                    border: Border.all(
+                      width: 1.0,
+                      color: const Color.fromARGB(26, 0, 0, 0),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 90,
+                        child: Center(
+                          child: Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.black),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          "Right EcoPoints",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Color(0xff0A0A0A),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Text(
+                          "Facilite a coleta de lixo sustentável",
+                          style: TextStyle(
+                            color: Color(0xff717182),
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Color(0xffFFFFFF),
+                    border: Border.all(
+                      width: 1.0,
+                      color: const Color.fromARGB(26, 0, 0, 0),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Color(0xffFFFFFF),
+                    border: Border.all(
+                      width: 1.0,
+                      color: const Color.fromARGB(26, 0, 0, 0),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
