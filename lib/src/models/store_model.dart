@@ -10,6 +10,7 @@ class StoreModel extends UsuarioBaseModel {
     required super.email,
     required super.password,
     required super.name,
+    required super.city,
     required this.address,
     required this.cnpj,
   }) : super(role: 'loja'); // Trava a 'role' para 'loja'
@@ -20,6 +21,7 @@ class StoreModel extends UsuarioBaseModel {
       uid: data['uid'] ?? doc.id,
       email: data['email'] ?? '',
       name: data['name'] ?? '',
+      city: data['city'] ?? '',
       password: data['password'] ?? '',
       address: data['address'] ?? '',
       cnpj: data['cnpj'] ?? '',

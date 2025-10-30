@@ -20,7 +20,14 @@ class CollectPointModel {
     );
   }
 
-  
+  Map<String, dynamic> toJSON() {
+    return {
+      'name': name,
+      'address': address.toJSON(),
+      'isActive': isActive,
+      'trashTypes': trashTypes,
+    };
+  }
 }
 
 class Cords {
@@ -79,6 +86,6 @@ class Address {
       'country': country,
       'state': state,
       'cords': cords.toJSON(),
-    };  
+    };
   }
 }

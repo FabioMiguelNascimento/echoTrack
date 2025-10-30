@@ -10,6 +10,7 @@ abstract class UsuarioBaseModel {
   final String email;
   final String password;
   final String name;
+  final String city;
   final String role; // 'admin', 'cliente', 'loja'
 
   UsuarioBaseModel({
@@ -17,6 +18,7 @@ abstract class UsuarioBaseModel {
     required this.email,
     required this.password,
     required this.name,
+    required this.city,
     required this.role,
   });
 
@@ -41,6 +43,13 @@ abstract class UsuarioBaseModel {
 
   // Método comum para salvar dados (pode ser sobrescrito)
   Map<String, dynamic> toJson() {
-    return {'uid': uid, 'email': email, 'password': password, 'nome': name, 'role': role};
+    return {
+      'uid': uid,
+      'email': email,
+      'password': password,
+      'nome': name,
+      'city': city,
+      'role': role,
+    };
   }
 }

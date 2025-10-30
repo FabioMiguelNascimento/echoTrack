@@ -2,14 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:g1_g2/src/models/base/user_base_model.dart';
 
 class AdminModel extends UsuarioBaseModel {
-  final String city; // <-- Campo específico do Admin
-
   AdminModel({
     required super.uid,
     required super.email,
     required super.password,
     required super.name,
-    required this.city,
+    required super.city,
   }) : super(role: 'admin'); // Trava a 'role' para 'admin'
 
   // Construtor que lê o JSON
