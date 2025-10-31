@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:g1_g2/components/custom_avancar_text_buttom.dart';
+import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 
 class WelcomeAdminPage extends StatelessWidget {
   const WelcomeAdminPage({super.key});
@@ -17,7 +19,14 @@ class WelcomeAdminPage extends StatelessWidget {
           ),
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          child: Center(child: Text('Bem-vindo, Administrador!')),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Text('Bem-vindo, Administrador!'),
+                CustomAvancarTextButtom(nextPage: HomeAdminPage()),
+              ],
+            ),
+          ),
         ),
       ),
     );
