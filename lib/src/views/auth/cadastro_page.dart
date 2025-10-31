@@ -1,5 +1,6 @@
 // lib/views/cadastro_page.dart (NOVO ARQUIVO)
 import 'package:flutter/material.dart';
+import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart'; // Importe seu VM
@@ -95,25 +96,7 @@ class CadastroPage extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            TextButton.icon(
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.only(left: 0, right: 0),
-                                iconColor: Colors.black,
-                              ),
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LoginPage(),
-                                  ),
-                                );
-                              },
-                              icon: Icon(Icons.arrow_back),
-                              label: Text(
-                                'Voltar',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
+                            CustomVoltarTextButtom(pageToBack: LoginPage()),
                           ],
                         ),
                         Row(
@@ -154,13 +137,13 @@ class CadastroPage extends StatelessWidget {
                         // Seletor de Tipo de Usuário
                         Container(
                           decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 240, 237, 237),
-                            borderRadius: BorderRadius.circular(30),
+                            color: Color.fromARGB(24, 0, 0, 0),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.only(
-                              left: 4,
-                              right: 4,
+                              left: 5,
+                              right: 5,
                               top: 1,
                               bottom: 1,
                             ),
@@ -208,7 +191,7 @@ class CadastroPage extends StatelessWidget {
                                     // 2. ARREDONDA TUDO (o contêiner e o botão selecionado)
                                     shape: WidgetStateProperty.all(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(50),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
                                   ),
