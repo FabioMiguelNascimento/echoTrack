@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g1_g2",
+            "name": "RightEcoPoints",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "g1_g2 (profile mode)",
+            "name": "RightEcoPoints (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "g1_g2 (release mode)",
+            "name": "RightEcoPoints (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
