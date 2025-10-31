@@ -197,11 +197,18 @@ class _LoginPageState extends State<LoginPage> {
                             backgroundColor: Color(0xff00A63E),
                             iconColor: Colors.white,
                             shadowColor: Colors.transparent,
+                            minimumSize: Size(double.infinity, 50),
                           ),
 
                           child: loginVM.isLoading
                               ? CircularProgressIndicator(color: Colors.white)
-                              : Text("Entrar"),
+                              : Text(
+                                  "Entrar",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ],
                     ),

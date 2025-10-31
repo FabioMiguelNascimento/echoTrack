@@ -174,7 +174,7 @@ class CadastroPage extends StatelessWidget {
                                   SegmentedButton.styleFrom(
                                     // Cores base
                                     backgroundColor: Colors
-                                        .grey[200], // Fundo cinza (não selecionado)
+                                        .transparent, // Fundo cinza (não selecionado)
                                     selectedBackgroundColor: Colors
                                         .white, // Fundo branco (selecionado)
                                     selectedForegroundColor: Color(
