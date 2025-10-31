@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class CustomGreenButton extends StatelessWidget {
   final VoidCallback handleClick;
+  final String label;
 
-  const CustomGreenButton({super.key, required this.handleClick});
+  const CustomGreenButton({
+    super.key,
+    required this.handleClick,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,7 @@ class CustomGreenButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: Text(
-          'Entrar',
+          label,
           style: TextStyle(fontSize: 16, color: Colors.white),
           textAlign: TextAlign.center,
         ),
