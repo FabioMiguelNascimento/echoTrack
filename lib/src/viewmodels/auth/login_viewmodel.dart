@@ -5,16 +5,16 @@ import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Para tratar erros
 
+enum UserRole { admin, store, user }
+
 class LoginViewModel extends BaseViewModel {
   // 1. Dependências (Repos)
   // (Para um projeto real, injete-os via get_it ou provider)
   final AuthRepository _authRepo;
   final UserRepository _userRepo;
 
-  
   // Construtor que recebe as dependências
   LoginViewModel(this._authRepo, this._userRepo);
-
 
   // 2. Controladores (Dados da UI)
   final TextEditingController emailController = TextEditingController();
@@ -31,7 +31,7 @@ class LoginViewModel extends BaseViewModel {
       setError("Por favor, preencha e-mail e senha.");
       return false;
     }
-    
+
     setLoading(true);
 
     try {
@@ -42,7 +42,7 @@ class LoginViewModel extends BaseViewModel {
       );
 
       if (credential.user == null) throw Exception("Usuário não encontrado.");
-      
+
       final uid = credential.user!.uid;
 
       // Passo 2: Buscar dados do usuário no Firestore
@@ -59,10 +59,11 @@ class LoginViewModel extends BaseViewModel {
       usuarioLogado = usuario; // Salva o usuário no ViewModel
       setLoading(false);
       return true;
-
     } on FirebaseAuthException catch (e) {
       // Trata erros de login (ex: senha errada)
-      if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+      if (e.code == 'user-not-found' ||
+          e.code == 'wrong-password' ||
+          e.code == 'invalid-credential') {
         setError("E-mail ou senha inválidos.");
       } else {
         setError("Ocorreu um erro desconhecido. Tente novamente.");
@@ -72,6 +73,23 @@ class LoginViewModel extends BaseViewModel {
       // Trata outros erros (ex: falha ao buscar no Firestore)
       setError(e.toString());
       return false;
+    }
+  }
+
+  /// Retorna o papel do usuário baseado no UID, sem importar UsuarioBaseModel no main.dart
+  Future<UserRole> getUserRole(String uid) async {
+    final usuario = await _userRepo.getUserData(uid);
+    if (usuario == null) {
+      return UserRole.user; // Default para usuário comum se não encontrar
+    }
+
+    switch (usuario.role) {
+      case 'admin':
+        return UserRole.admin;
+      case 'store':
+        return UserRole.store;
+      default:
+        return UserRole.user;
     }
   }
 

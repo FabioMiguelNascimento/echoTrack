@@ -1,13 +1,25 @@
+// Libs
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+// Repositories
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
+
+// Viewmodels
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
+
+// Pages
 import 'package:g1_g2/src/views/auth/login_page.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'firebase_options.dart';
+
+// Utils
+import 'package:g1_g2/utils/home_selector.dart';
+
+import 'firebase_options.dart'; // File: firebase_options.dart
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,11 +70,51 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Seu App de Coleta',
-        theme: ThemeData(primarySwatch: Colors.green),
-        // A tela inicial. O Provider saberá
-        // encontrar o LoginViewModel para ela.
-        home: LoginPage(),
+        theme: ThemeData(
+          brightness: Brightness.light,
+          primarySwatch: Colors.green,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        ),
+        home: const AuthWrapper(),
       ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const LoginPage();
+    }
+
+    return FutureBuilder<UserRole>(
+      future: Provider.of<LoginViewModel>(
+        context,
+        listen: false,
+      ).getUserRole(user.uid),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasData) {
+          final role = snapshot.data!;
+          switch (role) {
+            case UserRole.admin:
+              return HomeSelector(userType: 'admin');
+            case UserRole.store:
+              return HomeSelector(userType: 'store');
+            default:
+              return HomeSelector(userType: 'user');
+          }
+        } else {
+          return const LoginPage();
+        }
+      },
     );
   }
 }
