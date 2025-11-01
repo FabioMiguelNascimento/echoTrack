@@ -1,22 +1,28 @@
-// src/views/admin/point_details_page.dart
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_dashboard_card.dart'; // <-- Importe o card
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/edit_collect_point_form_page.dart';
 
-class PointOptionsPage extends StatelessWidget {
-  // A página recebe o ponto de coleta como parâmetro
-  final CollectPointModel point;
-
-  const PointOptionsPage({super.key, required this.point});
+class PointOptionsPage extends StatefulWidget {
+  const PointOptionsPage({super.key});
 
   @override
+  State<PointOptionsPage> createState() => _PointOptionsPageState();
+}
+
+class _PointOptionsPageState extends State<PointOptionsPage> {
+  @override
   Widget build(BuildContext context) {
+    final point = context.watch<PontosViewmodel>().selectedPoint;
+
+    // 2. Se nenhum ponto estiver selecionado (erro), volta.
+    if (point == null) {
+      return Scaffold(body: Center(child: Text('Erro: Ponto não selecionado')));
+    }
     return CustomInitialLayout(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -71,8 +77,7 @@ class PointOptionsPage extends StatelessWidget {
                 // Navega para a tela de edição e aguarda resultado
                 final result = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        EditCollectPointFormPage(point: point),
+                    builder: (context) => EditCollectPointFormPage(),
                   ),
                 );
                 if (result == true) {
@@ -93,6 +98,7 @@ class PointOptionsPage extends StatelessWidget {
               subtitle: 'Excluír ponto permanentemente',
               onTap: () async {
                 // Confirmação antes de excluir
+                final BuildContext localContext = context;
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (context) {
@@ -115,10 +121,12 @@ class PointOptionsPage extends StatelessWidget {
                   },
                 );
 
+                if (!localContext.mounted) return;
+
                 if (confirmed == true) {
-                  final vm = context.read<PontosViewmodel>();
+                  final vm = localContext.read<PontosViewmodel>();
                   if (point.id == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(localContext).showSnackBar(
                       const SnackBar(
                         content: Text('ID do ponto não disponível.'),
                       ),
@@ -128,18 +136,20 @@ class PointOptionsPage extends StatelessWidget {
 
                   await vm.deleteCollectPoint(point.id!);
 
+                  if (!localContext.mounted) return;
+
                   if (vm.errorMessage != null) {
                     ScaffoldMessenger.of(
-                      context,
+                      localContext,
                     ).showSnackBar(SnackBar(content: Text(vm.errorMessage!)));
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(localContext).showSnackBar(
                       const SnackBar(
                         content: Text('Ponto excluído com sucesso'),
                       ),
                     );
                     // Volta para a tela anterior (lista)
-                    Navigator.of(context).pop();
+                    Navigator.of(localContext).pop();
                   }
                 }
               },

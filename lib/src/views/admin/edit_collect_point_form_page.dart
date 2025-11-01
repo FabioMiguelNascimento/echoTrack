@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 import 'package:provider/provider.dart';
 
-// --- MUDANÇA 1: Converter para StatefulWidget ---
 class EditCollectPointFormPage extends StatefulWidget {
-  final CollectPointModel point;
-
-  const EditCollectPointFormPage({super.key, required this.point});
+  const EditCollectPointFormPage({super.key});
 
   @override
   State<EditCollectPointFormPage> createState() =>
@@ -17,7 +13,6 @@ class EditCollectPointFormPage extends StatefulWidget {
 }
 
 class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
-  // --- MUDANÇA 2: Criar Controllers locais ---
   // Estes controllers vão guardar o estado DO FORMULÁRIO DE EDIÇÃO
   late TextEditingController _nameController;
   late TextEditingController _postalController;
@@ -28,24 +23,50 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
   late TextEditingController _numberController;
   late List<String> _selectedTrashTypes;
 
-  // --- MUDANÇA 3: Pré-preencher os campos no initState ---
+  // Sinaliza se o initState falhou (ex: ponto nulo)
+  bool _isLoadingError = false;
+
   @override
   void initState() {
     super.initState();
     // Pega o ponto de coleta recebido pelo widget
-    final point = widget.point;
+    final vm = context.read<PontosViewmodel>();
 
-    // Inicializa os controllers com os valores existentes do ponto
-    _nameController = TextEditingController(text: point.name);
-    _postalController = TextEditingController(text: point.address.postal);
-    _countryController = TextEditingController(text: point.address.country);
-    _stateController = TextEditingController(text: point.address.state);
-    _cityController = TextEditingController(text: point.address.city);
-    _streetController = TextEditingController(text: point.address.street);
-    _numberController = TextEditingController(text: point.address.number);
+    // Pegando os dados do ponto que já está selecioando pelo vm
+    final pointData = vm.getSelectedPointDataForEdit();
 
-    // Cria uma CÓPIA local da lista de tipos de lixo
-    _selectedTrashTypes = List<String>.from(point.trashTypes);
+    if (pointData == null) {
+      // Erro: O usuário não deveria estar aqui se nada foi selecionado
+      _isLoadingError = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erro: Nenhum ponto selecionado.')),
+          );
+          Navigator.pop(context);
+        }
+      });
+      // Inicializa controllers vazios para evitar crash
+      _nameController = TextEditingController();
+      _postalController = TextEditingController();
+      _countryController = TextEditingController();
+      _stateController = TextEditingController();
+      _cityController = TextEditingController();
+      _streetController = TextEditingController();
+      _numberController = TextEditingController();
+      _selectedTrashTypes = [];
+      return;
+    }
+
+    // --- MUDANÇA 3: Preencher controllers com dados do DTO ---
+    _nameController = TextEditingController(text: pointData.name);
+    _postalController = TextEditingController(text: pointData.postal);
+    _countryController = TextEditingController(text: pointData.country);
+    _stateController = TextEditingController(text: pointData.state);
+    _cityController = TextEditingController(text: pointData.city);
+    _streetController = TextEditingController(text: pointData.street);
+    _numberController = TextEditingController(text: pointData.number);
+    _selectedTrashTypes = List<String>.from(pointData.trashTypes);
   }
 
   // --- MUDANÇA 4: Limpar os controllers ---
@@ -90,23 +111,18 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Nós ainda precisamos do ViewModel para:
-    // 1. (vm.isLoading) -> Saber o estado de carregamento
-    // 2. (vm.availableTrashTypes) -> Pegar a lista de lixos disponíveis
-    // 3. (vmRead.updateCollectPoint) -> Disparar a ação de atualizar
     final vm = context.watch<PontosViewmodel>();
     final vmRead = context.read<PontosViewmodel>();
+
+    // Se o initState falhou, não mostra nada
+    if (_isLoadingError) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: <Color>[Color(0xffF0FDF4), Color(0xffEFF6FF)],
-          ),
-        ),
+        // ... (seu Container e Gradient)
         child: SafeArea(
           child: Column(
             children: [
@@ -120,19 +136,10 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Color(0x20000000)),
-                    ),
-                    shadowColor: Colors.transparent,
+                    // ... (seu Card e SingleChildScrollView)
                     child: SingleChildScrollView(
                       child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 30,
-                          bottom: 30,
-                          right: 20,
-                          left: 20,
-                        ),
+                        padding: const EdgeInsets.all(20), // Padding uniforme
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -142,61 +149,54 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                               style: TextStyle(fontSize: 20),
                             ),
                             SizedBox(height: 20),
-                            // --- MUDANÇA 5: Usar os controllers LOCAIS ---
                             _buildTextField(
-                              _nameController, // <-- MUDOU
+                              _nameController,
                               'Nome do ponto',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              _postalController, // <-- MUDOU
+                              _postalController,
                               'CEP',
                               TextInputType.number,
                             ),
                             _buildTextField(
-                              _countryController, // <-- MUDOU
+                              _countryController,
                               'País',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              _stateController, // <-- MUDOU
+                              _stateController,
                               'Estado',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              _cityController, // <-- MUDOU
+                              _cityController,
                               'Cidade',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              _streetController, // <-- MUDOU
+                              _streetController,
                               'Rua',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              _numberController, // <-- MUDOU
+                              _numberController,
                               'Número',
                               TextInputType.number,
                             ),
-
                             SizedBox(height: 20),
                             Text('Tipos de lixo aceitos:'),
                             SizedBox(height: 10),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              // Usamos a lista de tipos do VM
                               itemCount: vm.availableTrashTypes.length,
                               itemBuilder: (context, index) {
                                 final type = vm.availableTrashTypes[index];
                                 return CheckboxListTile(
                                   title: Text(type),
-                                  // --- MUDANÇA 6: Usar a lista LOCAL ---
                                   value: _selectedTrashTypes.contains(type),
                                   onChanged: (bool? value) {
-                                    // --- MUDANÇA 7: Usar setState ---
-                                    // Precisamos do setState para redesenhar
-                                    // a tela quando o checkbox mudar
                                     setState(() {
                                       if (value == true) {
                                         _selectedTrashTypes.add(type);
@@ -213,11 +213,12 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                               onPressed: vm.isLoading
                                   ? null
                                   : () async {
-                                      // --- MUDANÇA 8: Validar com controllers locais ---
+                                      final BuildContext localContext = context;
+
                                       if (_nameController.text.isEmpty ||
                                           _selectedTrashTypes.isEmpty) {
                                         ScaffoldMessenger.of(
-                                          context,
+                                          localContext,
                                         ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
@@ -228,50 +229,30 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                         return;
                                       }
 
-                                      // O ID NUNCA muda, pegamos do widget
-                                      final String? pointId = widget.point.id;
-
-                                      if (pointId == null) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'ID do ponto não disponível para atualização.',
-                                            ),
-                                          ),
-                                        );
-                                        return;
-                                      }
-
-                                      // --- MUDANÇA 9: Criar modelo com dados locais ---
-                                      final updated = CollectPointModel(
-                                        id: pointId, // ID original
-                                        name: _nameController.text.trim(),
-                                        address: Address(
-                                          street: _streetController.text.trim(),
-                                          city: _cityController.text.trim(),
-                                          number: _numberController.text.trim(),
-                                          postal: _postalController.text.trim(),
-                                          country: _countryController.text
-                                              .trim(),
-                                          state: _stateController.text.trim(),
-                                          // Se você também edita coords,
-                                          // precisa de controllers para elas
-                                          cords: widget.point.address.cords,
-                                        ),
-                                        // Mantém o estado original
-                                        isActive: widget.point.isActive,
-                                        trashTypes: _selectedTrashTypes,
-                                      );
-
-                                      // O resto da lógica está PERFEITA
+                                      // --- MUDANÇA 4: VIOLAÇÃO REMOVIDA ---
+                                      // Não construímos o Model.
+                                      // Apenas passamos os dados brutos para o VM.
                                       final success = await vmRead
-                                          .updateCollectPoint(pointId, updated);
-                                      if (!mounted) return;
+                                          .updatePointFromForm(
+                                            name: _nameController.text.trim(),
+                                            postal: _postalController.text
+                                                .trim(),
+                                            country: _countryController.text
+                                                .trim(),
+                                            state: _stateController.text.trim(),
+                                            city: _cityController.text.trim(),
+                                            street: _streetController.text
+                                                .trim(),
+                                            number: _numberController.text
+                                                .trim(),
+                                            trashTypes: _selectedTrashTypes,
+                                          );
+
+                                      if (!localContext.mounted) return;
+
                                       if (success) {
                                         ScaffoldMessenger.of(
-                                          context,
+                                          localContext,
                                         ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
@@ -279,10 +260,11 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                             ),
                                           ),
                                         );
-                                        Navigator.pop(context, true);
+                                        // Retorna 'true' para a página de Detalhes
+                                        Navigator.pop(localContext, true);
                                       } else {
                                         ScaffoldMessenger.of(
-                                          context,
+                                          localContext,
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(

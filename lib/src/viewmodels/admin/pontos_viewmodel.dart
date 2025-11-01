@@ -1,14 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/viewmodels/admin/dtos/point_edit_data.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
 import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
+
+import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
 
 class PontosViewmodel extends BaseViewModel {
   final CollectPointRepository _repository;
 
   PontosViewmodel(this._repository);
 
-  // Lista de tipos de lixo disponíveis (mesma lista usada no cadastro)
+  List<CollectPointModel> _points = [];
+  List<PointCardData> get pointCards {
+    return _points
+        .where((p) => p.id != null) // Garante que não há pontos sem ID
+        .map((model) => PointCardData(id: model.id!, name: model.name))
+        .toList();
+  }
+
+  // (Usado pelas telas de Detalhes e Edição)
+  CollectPointModel? _selectedPoint;
+  CollectPointModel? get selectedPoint => _selectedPoint;
+
+  /// Fornece os dados do ponto selecionado de forma segura para a View de Edição.
+  PointEditData? getSelectedPointDataForEdit() {
+    if (_selectedPoint == null) {
+      return null;
+    }
+    // Transforma o Model em um DTO simples
+    return PointEditData(
+      name: _selectedPoint!.name,
+      postal: _selectedPoint!.address.postal,
+      country: _selectedPoint!.address.country,
+      state: _selectedPoint!.address.state,
+      city: _selectedPoint!.address.city,
+      street: _selectedPoint!.address.street,
+      number: _selectedPoint!.address.number,
+      trashTypes: _selectedPoint!.trashTypes,
+    );
+  }
+
+  /// Define qual ponto está ativo para as telas de detalhe/edição.
+  void selectPoint(String pointId) {
+    try {
+      // Busca o ponto na lista que já carregamos
+      _selectedPoint = _points.firstWhere((p) => p.id == pointId);
+    } catch (e) {
+      setError('Erro ao selecionar ponto: $e');
+      _selectedPoint = null;
+    }
+  }
+
+  /// Limpa a seleção ao voltar para a home, por exemplo.
+  void clearSelectedPoint() {
+    _selectedPoint = null;
+  }
+
+  // --- 3. ESTADO DO FORMULÁRIO DE CADASTRO ---
+  // (Estes são os "rascunhos globais" APENAS para o cadastro)
+
+  final TextEditingController createNameController = TextEditingController();
+  final TextEditingController createPostalController = TextEditingController();
+  final TextEditingController createCountryController = TextEditingController();
+  final TextEditingController createStateController = TextEditingController();
+  final TextEditingController createCityController = TextEditingController();
+  final TextEditingController createNeighborhoodController =
+      TextEditingController();
+  final TextEditingController createStreetController = TextEditingController();
+  final TextEditingController createNumberController = TextEditingController();
+
+  final List<String> createSelectedTrashTypes = [];
+
   final List<String> availableTrashTypes = [
     'Plástico',
     'Papel',
@@ -19,111 +82,31 @@ class PontosViewmodel extends BaseViewModel {
     'Tecido',
   ];
 
-  // Lista dos tipos selecionados pelo usuário
-  final List<String> selectedTrashTypes = [];
-
-  // Método para alternar seleção de um tipo de lixo
-  void toggleTrashType(String type) {
-    if (selectedTrashTypes.contains(type)) {
-      selectedTrashTypes.remove(type);
+  /// Alterna a seleção de lixo NO FORMULÁRIO DE CADASTRO.
+  void toggleCreateTrashType(String type) {
+    if (createSelectedTrashTypes.contains(type)) {
+      createSelectedTrashTypes.remove(type);
     } else {
-      selectedTrashTypes.add(type);
+      createSelectedTrashTypes.add(type);
     }
-    notifyListeners(); // Notifica a UI para atualizar
-  }
-
-  // Controllers usados em formulários (sem dependência direta de Widgets)
-  final TextEditingController nameController = TextEditingController();
-
-  // Endereco
-  final TextEditingController postalController = TextEditingController();
-  final TextEditingController countryController = TextEditingController();
-  final TextEditingController stateController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController neighborhoodController = TextEditingController();
-  final TextEditingController streetController = TextEditingController();
-  final TextEditingController numberController = TextEditingController();
-
-  // tenta cadastrar novo ponto - retorna true se conseguir
-  Future<bool> cadastrar() async {
-    setLoading(true);
-
-    try {
-      // Validação
-      if (nameController.text.isEmpty ||
-          postalController.text.isEmpty ||
-          countryController.text.isEmpty ||
-          cityController.text.isEmpty ||
-          neighborhoodController.text.isEmpty ||
-          streetController.text.isEmpty ||
-          numberController.text.isEmpty ||
-          selectedTrashTypes.isEmpty) {
-        throw Exception(
-          "Preencha todos os campos obrigatórios e selecione pelo menos um tipo de lixo.",
-        );
-      }
-
-      // Pegando o modelo de dados
-      CollectPointModel novoPonto = CollectPointModel(
-        name: nameController.text.trim(),
-        address: Address(
-          street: streetController.text.trim(),
-          city: cityController.text.trim(),
-          number: numberController.text.trim(),
-          postal: postalController.text.trim(),
-          country: countryController.text.trim(),
-          state: stateController.text.trim(),
-        ),
-        isActive: true,
-        trashTypes: selectedTrashTypes, // Usando a lista selecionada
-      );
-
-      // Salvar no repositório
-      await _repository.adicionarPontoColeta(novoPonto);
-
-      setLoading(false);
-      return true;
-    } catch (e) {
-      setError(e.toString());
-      return false;
-    }
-  }
-
-  // Método para limpar os campos do formulário e também a lista local
-  void clear() {
-    // limpa controllers e seleção
-    nameController.clear();
-    postalController.clear();
-    countryController.clear();
-    stateController.clear();
-    cityController.clear();
-    neighborhoodController.clear();
-    streetController.clear();
-    numberController.clear();
-    selectedTrashTypes.clear();
-
-    // limpa lista de pontos também
-    _points = [];
     notifyListeners();
   }
 
-  @override
-  void addListener(VoidCallback listener) {
-    nameController.clear();
-    postalController.clear();
-    countryController.clear();
-    stateController.clear();
-    cityController.clear();
-    neighborhoodController.clear();
-    streetController.clear();
-    numberController.clear();
-    selectedTrashTypes.clear();
-    super.addListener(listener);
+  /// Limpa APENAS os campos do formulário de cadastro.
+  void clearCreateForm() {
+    createNameController.clear();
+    createPostalController.clear();
+    createCountryController.clear();
+    createStateController.clear();
+    createCityController.clear();
+    createNeighborhoodController.clear();
+    createStreetController.clear();
+    createNumberController.clear();
+    createSelectedTrashTypes.clear();
+    notifyListeners(); // Notifica a tela de cadastro para limpar os checkboxes
   }
 
-  List<CollectPointModel> _points = [];
-
-  List<CollectPointModel> get points => List.unmodifiable(_points);
+  // --- 4. LÓGICA DE NEGÓCIO (CRUD) ---
 
   /// Carrega todos os pontos de coleta do repositório.
   Future<void> loadCollectPoints() async {
@@ -131,42 +114,112 @@ class PontosViewmodel extends BaseViewModel {
     try {
       final fetched = await _repository.getAllCollectPoints();
       _points = fetched;
-      setLoading(false);
-      notifyListeners();
+      setError(null); // Limpa erro anterior se carregar com sucesso
     } catch (e) {
       setError('Falha ao carregar pontos: $e');
+      _points = []; // Limpa a lista em caso de erro
     } finally {
       setLoading(false);
-      notifyListeners();
+      notifyListeners(); // Notifica a UI (sucesso ou falha)
     }
   }
 
-  /// Força recarregar os dados (convenience)
+  /// Força recarregar os dados
   Future<void> refresh() async => await loadCollectPoints();
 
-  /// Deletando Ponto de coleta
-  Future<void> deleteCollectPoint(String id) async {
+  /// Tenta cadastrar novo ponto - retorna true se conseguir
+  Future<bool> cadastrar() async {
     setLoading(true);
+    notifyListeners(); // Mostra o loading
+
     try {
-      await _repository.deletarPontoColeta(id);
-      // Após exclusão, recarrega a lista atualizada
-      await loadCollectPoints();
+      // Validação usando os controllers de CADASTRO
+      if (createNameController.text.isEmpty ||
+          createPostalController.text.isEmpty ||
+          // ... (valide todos os outros 'create' controllers)
+          createSelectedTrashTypes.isEmpty) {
+        throw Exception(
+          "Preencha todos os campos obrigatórios e selecione pelo menos um tipo de lixo.",
+        );
+      }
+
+      CollectPointModel novoPonto = CollectPointModel(
+        name: createNameController.text.trim(),
+        address: Address(
+          street: createStreetController.text.trim(),
+          city: createCityController.text.trim(),
+          number: createNumberController.text.trim(),
+          postal: createPostalController.text.trim(),
+          country: createCountryController.text.trim(),
+          state: createStateController.text.trim(),
+        ),
+        isActive: true,
+        trashTypes: createSelectedTrashTypes,
+      );
+
+      // Salvar no repositório
+      await _repository.adicionarPontoColeta(novoPonto);
+
+      // --- SUCESSO ---
+      clearCreateForm(); // 1. Limpa os campos do formulário
+      await loadCollectPoints(); // 2. Recarrega a lista na home (já notifica)
+      return true;
     } catch (e) {
-      setError('Erro ao deletar o ponto: $id / Erro: $e');
-    } finally {
-      setLoading(false);
+      setError(e.toString());
+      setLoading(false); // Para o loading em caso de erro
       notifyListeners();
+      return false;
     }
+    // Não precisa de 'finally' aqui porque o 'loadCollectPoints'
+    // já cuida de parar o loading e notificar.
   }
 
-  /// Atualiza um ponto de coleta existente.
-  /// Retorna true em caso de sucesso, false em caso de erro.
-  Future<bool> updateCollectPoint(String id, CollectPointModel updated) async {
+  /// Recebe dados puros da View, constrói o Model e atualiza.
+  Future<bool> updatePointFromForm({
+    required String name,
+    required String postal,
+    required String country,
+    required String state,
+    required String city,
+    required String street,
+    required String number,
+    required List<String> trashTypes,
+  }) async {
+    // A View não sabe o ID, mas o ViewModel sabe!
+    final String? pointId = _selectedPoint?.id;
+    if (pointId == null) {
+      setError('Erro fatal: Ponto selecionado é nulo');
+      return false;
+    }
+
     setLoading(true);
+    notifyListeners();
     try {
-      await _repository.atualizarPontoColeta(id, updated);
+      // --- AQUI o ViewModel constrói o Model (permitido) ---
+      final updatedModel = CollectPointModel(
+        id: pointId,
+        name: name,
+        address: Address(
+          street: street,
+          city: city,
+          number: number,
+          postal: postal,
+          country: country,
+          state: state,
+          cords: _selectedPoint!.address.cords, // Mantém coords originais
+        ),
+        isActive: _selectedPoint!.isActive, // Mantém status original
+        trashTypes: trashTypes,
+      );
+
+      // (Use seu método de repository existente)
+      await _repository.atualizarPontoColeta(pointId, updatedModel);
+
       // Recarrega a lista para refletir alterações
       await loadCollectPoints();
+      // Atualiza o 'selectedPoint' com os novos dados
+      selectPoint(pointId);
+
       return true;
     } catch (e) {
       setError('Erro ao atualizar ponto: $e');
@@ -177,5 +230,35 @@ class PontosViewmodel extends BaseViewModel {
     }
   }
 
-  // (clear já definido acima)
+  /// Deleta um Ponto de coleta
+  Future<void> deleteCollectPoint(String id) async {
+    setLoading(true);
+    notifyListeners();
+    try {
+      await _repository.deletarPontoColeta(id);
+      await loadCollectPoints(); // Recarrega a lista (já notifica)
+    } catch (e) {
+      setError('Erro ao deletar o ponto: $id / Erro: $e');
+      setLoading(false); // Para o loading em caso de erro
+      notifyListeners();
+    }
+  }
+
+  // --- 5. LIMPEZA ---
+
+  // (REMOVIDO o override do addListener)
+
+  /// Sobrescreva o dispose para limpar SEUS controllers
+  @override
+  void dispose() {
+    createNameController.dispose();
+    createPostalController.dispose();
+    createCountryController.dispose();
+    createStateController.dispose();
+    createCityController.dispose();
+    createNeighborhoodController.dispose();
+    createStreetController.dispose();
+    createNumberController.dispose();
+    super.dispose();
+  }
 }

@@ -85,42 +85,42 @@ class AddCollectPointFormPage extends StatelessWidget {
                             ),
                             SizedBox(height: 20),
                             _buildTextField(
-                              vm.nameController,
+                              vm.createNameController,
                               'Nome do ponto',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.postalController,
+                              vm.createPostalController,
                               'CEP',
                               TextInputType.number,
                             ),
                             _buildTextField(
-                              vm.countryController,
+                              vm.createCountryController,
                               'País',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.stateController,
+                              vm.createStateController,
                               'Estado',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.cityController,
+                              vm.createCityController,
                               'Cidade',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.neighborhoodController,
+                              vm.createNeighborhoodController,
                               'Bairro',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.streetController,
+                              vm.createStreetController,
                               'Rua',
                               TextInputType.text,
                             ),
                             _buildTextField(
-                              vm.numberController,
+                              vm.createNumberController,
                               'Número',
                               TextInputType.number,
                             ),
@@ -136,9 +136,11 @@ class AddCollectPointFormPage extends StatelessWidget {
                                 final type = vm.availableTrashTypes[index];
                                 return CheckboxListTile(
                                   title: Text(type),
-                                  value: vm.selectedTrashTypes.contains(type),
+                                  value: vm.createSelectedTrashTypes.contains(
+                                    type,
+                                  ),
                                   onChanged: (bool? value) {
-                                    vm.toggleTrashType(type);
+                                    vm.toggleCreateTrashType(type);
                                   },
                                 );
                               },
@@ -151,7 +153,7 @@ class AddCollectPointFormPage extends StatelessWidget {
                                       bool sucesso = await vmRead.cadastrar();
                                       if (context.mounted) {
                                         if (sucesso) {
-                                          vmRead.clear();
+                                          vmRead.clearCreateForm();
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(

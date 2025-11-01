@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_green_button.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/add_collect_point_form_page.dart';
@@ -10,6 +9,8 @@ import 'package:g1_g2/src/views/admin/point_options_page.dart';
 import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
+
+import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
 
 class HomeAdminPage extends StatefulWidget {
   const HomeAdminPage({super.key});
@@ -28,7 +29,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
     });
   }
 
-  Widget _buildPointCard(CollectPointModel p) {
+  Widget _buildPointCard(PointCardData data) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       elevation: 1,
@@ -37,9 +38,10 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(16.0),
         onTap: () {
+          context.read<PontosViewmodel>().selectPoint(data.id);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PointOptionsPage(point: p)),
+            MaterialPageRoute(builder: (context) => PointOptionsPage()),
           );
         },
         child: Padding(
@@ -61,7 +63,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      p.name,
+                      data.name,
                       style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
@@ -135,18 +137,18 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                           ),
                         );
                       } else {
-                        if (vm.points.isEmpty) {
+                        if (vm.pointCards.isEmpty) {
                           return const Center(
                             child: Text('Nenhum ponto encontrado'),
                           );
                         }
                         return ListView.separated(
-                          itemCount: vm.points.length,
+                          itemCount: vm.pointCards.length,
                           // removida a linha divisória visual; usa um spacer vazio
                           separatorBuilder: (_, __) => const SizedBox.shrink(),
                           itemBuilder: (context, index) {
-                            final CollectPointModel p = vm.points[index];
-                            return _buildPointCard(p);
+                            final PointCardData data = vm.pointCards[index];
+                            return _buildPointCard(data);
                           },
                         );
                       }
@@ -180,8 +182,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                         final result = await Navigator.push<bool?>(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const AddCollectPointFormPage(),
+                            builder: (_) => AddCollectPointFormPage(),
                           ),
                         );
                         if (result == true) {
