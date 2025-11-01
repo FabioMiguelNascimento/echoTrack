@@ -1,6 +1,7 @@
 // Libs
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/viewmodels/admin/lista_pontos_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -65,6 +66,12 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider<CadastroPontoViewmodel>(
           create: (contexto) =>
               CadastroPontoViewmodel(contexto.read<CollectPointRepository>()),
+        ),
+
+        ChangeNotifierProvider<ListaPontosViewmodel>(
+          create: (context) =>
+              ListaPontosViewmodel(context.read<CollectPointRepository>())
+                ..loadCollectPoints(),
         ),
 
         // Adicione outros ViewModels aqui conforme necessário

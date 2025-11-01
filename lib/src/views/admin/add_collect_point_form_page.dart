@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:g1_g2/components/custom_container_background.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/viewmodels/admin/cadastro_ponto_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
@@ -152,6 +151,7 @@ class AddCollectPointFormPage extends StatelessWidget {
                                       bool sucesso = await vmRead.cadastrar();
                                       if (context.mounted) {
                                         if (sucesso) {
+                                          vmRead.clear();
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
@@ -161,7 +161,7 @@ class AddCollectPointFormPage extends StatelessWidget {
                                               ),
                                             ),
                                           );
-                                          Navigator.pop(context);
+                                          Navigator.pop(context, true);
                                         } else {
                                           ScaffoldMessenger.of(
                                             context,

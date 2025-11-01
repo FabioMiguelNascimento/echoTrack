@@ -92,4 +92,32 @@ class CadastroPontoViewmodel extends BaseViewModel {
       return false;
     }
   }
+
+  // Método para limpar os campos do formulário
+  void clear() {
+    nameController.clear();
+    postalController.clear();
+    countryController.clear();
+    stateController.clear();
+    cityController.clear();
+    neighborhoodController.clear();
+    streetController.clear();
+    numberController.clear();
+    selectedTrashTypes.clear();
+    notifyListeners();
+  }
+
+  @override
+  void addListener(VoidCallback listener) {
+    nameController.clear();
+    postalController.clear();
+    countryController.clear();
+    stateController.clear();
+    cityController.clear();
+    neighborhoodController.clear();
+    streetController.clear();
+    numberController.clear();
+    selectedTrashTypes.clear();
+    super.addListener(listener);
+  }
 }

@@ -5,20 +5,47 @@ class CollectPointRepository {
   final _db = FirebaseFirestore.instance;
   final String _collectionPath = 'pontosDeColeta';
 
-  // *** SEU MÉTODO FICA AQUI ***
   Future<void> adicionarPontoColeta(CollectPointModel novoPonto) async {
     try {
-      // A lógica de negócio (salvar no Firebase)
-      // fica encapsulada aqui.
       await _db.collection(_collectionPath).add(novoPonto.toJSON());
     } catch (e) {
-      // Tratar erros
       throw Exception('Erro ao salvar ponto de coleta: $e');
+    }
+  }
+
+  Future<List<CollectPointModel>> getAllCollectPoints() async {
+    try {
+      final querySnapshot = await _db.collection(_collectionPath).get();
+      final points = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        final model = CollectPointModel.fromJSON(data, id: doc.id);
+        return model;
+      }).toList();
+      return points;
+    } catch (e, stackTrace) {
+      print('--- ERRO AO BUSCAR PONTOS ---');
+      print('ERRO: $e');
+      print('STACK TRACE: $stackTrace');
+      print('-------------------------------');
+      throw Exception('Erro ao buscar pontos de coleta');
+    }
+  }
+
+  Future<void> deletarPontoColeta(String id) async {
+    try {
+      return await _db.collection(_collectionPath).doc(id).delete();
+    } catch (e, stackTrace) {
+      print('--- ERRO AO DELETAR PONTO ---');
+      print('ID: $id');
+      print('ERRO: $e');
+      print('STACK TRACE: $stackTrace');
+      print('-------------------------------');
+
+      throw Exception('Erro ao deletar ponto de coleta: $e');
     }
   }
 
   // Você também terá outros métodos aqui:
   // Future<List<PontoColeta>> getTodosPontosColeta() { ... }
   // Future<void> atualizarPontoColeta(PontoColeta ponto) { ... }
-  // Future<void> deletarPontoColeta(String id) { ... }
 }
