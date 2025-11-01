@@ -6,7 +6,8 @@ import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 import 'package:provider/provider.dart';
-import 'package:g1_g2/src/viewmodels/admin/lista_pontos_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:g1_g2/src/views/admin/edit_collect_point_form_page.dart';
 
 class PointOptionsPage extends StatelessWidget {
   // A página recebe o ponto de coleta como parâmetro
@@ -57,29 +58,28 @@ class PointOptionsPage extends StatelessWidget {
                 // TODO: Navegar para a tela de observações
               },
             ),
-            const SizedBox(height: 16),
-
-            // Card 2 (Azul)
-            CustomDashboardCard(
-              color: const Color(0xFF2563EB), // Azul
-              icon: Icons.delete_outline_rounded,
-              title: 'Tipos de lixo',
-              subtitle: 'Selecione os tipos de lixo aceitos no ponto',
-              onTap: () {
-                // TODO: Navegar para a tela de tipos de lixo
-              },
-            ),
 
             const SizedBox(height: 16),
 
-            // Card 3 (Laranja)
+            // Card 3 (Laranja) - Editar
             CustomDashboardCard(
-              color: const Color.fromARGB(255, 230, 127, 9), // Azul
+              color: const Color.fromARGB(255, 230, 127, 9), // Laranja
               icon: Icons.info_outline_rounded,
               title: 'Editar informações',
               subtitle: 'Edite as informações básicas do ponto',
-              onTap: () {
-                // TODO: Navegar para a tela de tipos de lixo
+              onTap: () async {
+                // Navega para a tela de edição e aguarda resultado
+                final result = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditCollectPointFormPage(point: point),
+                  ),
+                );
+                if (result == true) {
+                  // Recarrega a lista no ViewModel registrado globalmente
+                  final vm = context.read<PontosViewmodel>();
+                  await vm.refresh();
+                }
               },
             ),
 
@@ -116,7 +116,7 @@ class PointOptionsPage extends StatelessWidget {
                 );
 
                 if (confirmed == true) {
-                  final vm = context.read<ListaPontosViewmodel>();
+                  final vm = context.read<PontosViewmodel>();
                   if (point.id == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
