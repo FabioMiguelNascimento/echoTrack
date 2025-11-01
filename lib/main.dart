@@ -10,6 +10,7 @@ import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
 
 // Viewmodels
+import 'package:g1_g2/src/viewmodels/admin/cadastro_ponto_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
 
@@ -60,12 +61,16 @@ class MainApp extends StatelessWidget {
           ),
         ),
 
+        // ViewModel para cadastro de pontos de coleta
+        ChangeNotifierProvider<CadastroPontoViewmodel>(
+          create: (contexto) =>
+              CadastroPontoViewmodel(contexto.read<CollectPointRepository>()),
+        ),
+
         // Adicione outros ViewModels aqui conforme necessário
         // Ex:
-        // ChangeNotifierProvider<AddPontoColetaViewModel>(
-        //   create: (contexto) => AddPontoColetaViewModel(
-        //     contexto.read<PontoColetaRepository>(),
-        //   ),
+        // ChangeNotifierProvider<OutroViewModel>(
+        //   create: (contexto) => OutroViewModel(contexto.read<OutroRepository>()),
         // ),
       ],
       child: MaterialApp(
