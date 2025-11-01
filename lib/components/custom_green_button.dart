@@ -20,13 +20,10 @@ class CustomGreenButton extends StatelessWidget {
         iconColor: Colors.white,
         shadowColor: Colors.transparent,
       ),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 16, color: Colors.white),
-          textAlign: TextAlign.center,
-        ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 16, color: Colors.white),
+        textAlign: TextAlign.center,
       ),
     );
   }
