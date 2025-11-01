@@ -45,7 +45,17 @@ class CollectPointRepository {
     }
   }
 
-  // Você também terá outros métodos aqui:
-  // Future<List<PontoColeta>> getTodosPontosColeta() { ... }
-  // Future<void> atualizarPontoColeta(PontoColeta ponto) { ... }
+  Future<void> atualizarPontoColeta(String id, CollectPointModel updatedPoint) async {
+    try {
+      await _db.collection(_collectionPath).doc(id).update(updatedPoint.toJSON());
+    } catch (e, stackTrace) {
+      print('--- ERRO AO ATUALIZAR PONTO DE COLETA ---');
+      print('ID: $id');
+      print('ERRO: $e');
+      print('STACK TRACE: $stackTrace');
+      print('-------------------------------');
+
+      throw Exception('Erro ao atualizar ponto de coleta: $e');
+    }
+  }
 }
