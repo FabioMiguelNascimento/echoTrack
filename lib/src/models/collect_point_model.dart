@@ -1,22 +1,25 @@
 class CollectPointModel {
+  final String? id;
   final String name;
   final Address address;
   final bool isActive;
   final List<String> trashTypes;
 
   CollectPointModel({
+    this.id,
     required this.name,
     required this.address,
     required this.isActive,
     required this.trashTypes,
   });
 
-  factory CollectPointModel.fromJSON(Map<String, dynamic> json) {
+  factory CollectPointModel.fromJSON(Map<String, dynamic> json, {String? id}) {
     return CollectPointModel(
+      id: id,
       name: json['name'],
       address: Address.fromJSON(json['address']),
       isActive: json['isActive'],
-      trashTypes: List<String>.from(json['trashTypes']),
+      trashTypes: List<String>.from(json['trashTypes'] ?? []),
     );
   }
 
@@ -52,7 +55,7 @@ class Address {
   final String postal;
   final String country;
   final String state;
-  Cords? cords;
+  final Cords? cords;
 
   Address({
     required this.street,
@@ -72,7 +75,9 @@ class Address {
       postal: json['postal'],
       country: json['country'],
       state: json['state'],
-      cords: Cords.fromJSON(json['cords']), // Chama o fromJSON da classe cords
+      cords: json['cords'] == null
+          ? null
+          : Cords.fromJSON(json['cords']), // Chama o fromJSON da classe cords
     );
   }
 
