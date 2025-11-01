@@ -1,19 +1,14 @@
-// Libs
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
+import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 
-// Repositories
-import 'package:g1_g2/src/repositories/collect_point_repository.dart';
+class PontosViewmodel extends BaseViewModel {
+  final CollectPointRepository _repository;
 
-// ViewModel Base
-import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
+  PontosViewmodel(this._repository);
 
-class CadastroPontoViewmodel extends BaseViewModel {
-  final CollectPointRepository _collectPointRepo;
-
-  CadastroPontoViewmodel(this._collectPointRepo);
-
-  // Lista de tipos de lixo disponíveis (pode ser movida para uma constante ou config)
+  // Lista de tipos de lixo disponíveis (mesma lista usada no cadastro)
   final List<String> availableTrashTypes = [
     'Plástico',
     'Papel',
@@ -37,6 +32,7 @@ class CadastroPontoViewmodel extends BaseViewModel {
     notifyListeners(); // Notifica a UI para atualizar
   }
 
+  // Controllers usados em formulários (sem dependência direta de Widgets)
   final TextEditingController nameController = TextEditingController();
 
   // Endereco
@@ -83,7 +79,7 @@ class CadastroPontoViewmodel extends BaseViewModel {
       );
 
       // Salvar no repositório
-      await _collectPointRepo.adicionarPontoColeta(novoPonto);
+      await _repository.adicionarPontoColeta(novoPonto);
 
       setLoading(false);
       return true;
@@ -93,8 +89,9 @@ class CadastroPontoViewmodel extends BaseViewModel {
     }
   }
 
-  // Método para limpar os campos do formulário
+  // Método para limpar os campos do formulário e também a lista local
   void clear() {
+    // limpa controllers e seleção
     nameController.clear();
     postalController.clear();
     countryController.clear();
@@ -104,6 +101,9 @@ class CadastroPontoViewmodel extends BaseViewModel {
     streetController.clear();
     numberController.clear();
     selectedTrashTypes.clear();
+
+    // limpa lista de pontos também
+    _points = [];
     notifyListeners();
   }
 
@@ -120,4 +120,62 @@ class CadastroPontoViewmodel extends BaseViewModel {
     selectedTrashTypes.clear();
     super.addListener(listener);
   }
+
+  List<CollectPointModel> _points = [];
+
+  List<CollectPointModel> get points => List.unmodifiable(_points);
+
+  /// Carrega todos os pontos de coleta do repositório.
+  Future<void> loadCollectPoints() async {
+    setLoading(true);
+    try {
+      final fetched = await _repository.getAllCollectPoints();
+      _points = fetched;
+      setLoading(false);
+      notifyListeners();
+    } catch (e) {
+      setError('Falha ao carregar pontos: $e');
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  /// Força recarregar os dados (convenience)
+  Future<void> refresh() async => await loadCollectPoints();
+
+  /// Deletando Ponto de coleta
+  Future<void> deleteCollectPoint(String id) async {
+    setLoading(true);
+    try {
+      await _repository.deletarPontoColeta(id);
+      // Após exclusão, recarrega a lista atualizada
+      await loadCollectPoints();
+    } catch (e) {
+      setError('Erro ao deletar o ponto: $id / Erro: $e');
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  /// Atualiza um ponto de coleta existente.
+  /// Retorna true em caso de sucesso, false em caso de erro.
+  Future<bool> updateCollectPoint(String id, CollectPointModel updated) async {
+    setLoading(true);
+    try {
+      await _repository.atualizarPontoColeta(id, updated);
+      // Recarrega a lista para refletir alterações
+      await loadCollectPoints();
+      return true;
+    } catch (e) {
+      setError('Erro ao atualizar ponto: $e');
+      return false;
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  // (clear já definido acima)
 }
