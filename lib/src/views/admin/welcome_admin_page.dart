@@ -52,7 +52,7 @@ class WelcomeAdminPage extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        'Administre os pontos de coleta',
+                        'Administre os pontos\nde coleta',
                         style: TextStyle(
                           fontSize: 19,
                           color: Color(0xFF0A0A0A),
