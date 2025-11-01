@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/viewmodels/admin/cadastro_ponto_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 import 'package:provider/provider.dart';
 
@@ -36,8 +36,8 @@ class AddCollectPointFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<CadastroPontoViewmodel>();
-    final vmRead = context.read<CadastroPontoViewmodel>();
+    final vm = context.watch<PontosViewmodel>();
+    final vmRead = context.read<PontosViewmodel>();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,

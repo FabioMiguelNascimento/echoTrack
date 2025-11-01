@@ -4,7 +4,7 @@ import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
-import 'package:g1_g2/src/viewmodels/admin/lista_pontos_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/add_collect_point_form_page.dart';
 import 'package:g1_g2/src/views/admin/point_options_page.dart';
 import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
@@ -23,7 +23,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<ListaPontosViewmodel>();
+      final vm = context.read<PontosViewmodel>();
       vm.loadCollectPoints();
     });
   }
@@ -90,7 +90,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ListaPontosViewmodel>(
+    return Consumer<PontosViewmodel>(
       builder: (context, vm, child) {
         return CustomInitialLayout(
           child: Padding(
@@ -110,6 +110,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                 const Text(
                   'Pontos de coleta do município',
                   style: TextStyle(fontSize: 18, color: Color(0xFF0A0A0A)),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
