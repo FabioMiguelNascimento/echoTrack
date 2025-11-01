@@ -52,7 +52,7 @@ class Address {
   final String postal;
   final String country;
   final String state;
-  final Cords cords;
+  Cords? cords;
 
   Address({
     required this.street,
@@ -61,7 +61,7 @@ class Address {
     required this.postal,
     required this.country,
     required this.state,
-    required this.cords,
+    this.cords,
   });
 
   factory Address.fromJSON(Map<String, dynamic> json) {
@@ -85,7 +85,7 @@ class Address {
       'postal': postal,
       'country': country,
       'state': state,
-      'cords': cords.toJSON(),
+      'cords': cords?.toJSON(),
     };
   }
 }
