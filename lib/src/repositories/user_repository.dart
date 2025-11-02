@@ -20,6 +20,17 @@ class UserRepository {
     }
   }
 
+  /// Retorna os dados brutos do documento do usuário (útil para campos extras)
+  Future<Map<String, dynamic>?> getUserRawData(String uid) async {
+    try {
+      final doc = await _db.collection(_collectionPath).doc(uid).get();
+      if (!doc.exists) return null;
+      return doc.data();
+    } catch (e) {
+      throw Exception('Erro ao buscar dados brutos do usuário: $e');
+    }
+  }
+
   // Para criar um usuário, você passa qualquer modelo filho
   Future<void> createUserData(UsuarioBaseModel usuario) async {
     // O método toJson() correto (de admin, loja ou cliente) será chamado
