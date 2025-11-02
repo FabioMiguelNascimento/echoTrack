@@ -9,6 +9,8 @@ class NormalUserModel extends UsuarioBaseModel {
     required super.email,
     required super.password,
     required super.name,
+    required super.country,
+    required super.state,
     required super.city,
     required this.cpf,
   }) : super(role: 'user'); // Trava a 'role' para 'cliente'
@@ -20,6 +22,8 @@ class NormalUserModel extends UsuarioBaseModel {
       email: data['email'] ?? '',
       password: data['password'] ?? '',
       name: data['name'] ?? '',
+      country: data['country'] ?? '',
+      state: data['state'] ?? '',
       city: data['city'],
       cpf: data['cpf'],
     );

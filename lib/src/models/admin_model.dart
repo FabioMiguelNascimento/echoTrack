@@ -7,6 +7,8 @@ class AdminModel extends UsuarioBaseModel {
     required super.email,
     required super.password,
     required super.name,
+    required super.country,
+    required super.state,
     required super.city,
   }) : super(role: 'admin'); // Trava a 'role' para 'admin'
 
@@ -18,6 +20,8 @@ class AdminModel extends UsuarioBaseModel {
       email: data['email'] ?? '',
       password: data['password'] ?? '',
       name: data['nome'] ?? '',
+      country: data['country'] ?? '',
+      state: data['state'] ?? '',
       city: data['municipio'] ?? '', // <-- Pega o campo específico
     );
   }

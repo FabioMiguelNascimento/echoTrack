@@ -10,6 +10,8 @@ abstract class UsuarioBaseModel {
   final String email;
   final String password;
   final String name;
+  final String country;
+  final String state;
   final String city;
   final String role; // 'admin', 'cliente', 'loja'
 
@@ -18,6 +20,8 @@ abstract class UsuarioBaseModel {
     required this.email,
     required this.password,
     required this.name,
+    required this.country,
+    required this.state,
     required this.city,
     required this.role,
   });
@@ -48,6 +52,8 @@ abstract class UsuarioBaseModel {
       'email': email,
       'password': password,
       'nome': name,
+      'country': country,
+      'state': state,
       'city': city,
       'role': role,
     };

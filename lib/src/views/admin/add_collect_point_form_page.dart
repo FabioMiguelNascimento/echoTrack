@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:provider/provider.dart';
 
-class AddCollectPointFormPage extends StatelessWidget {
+class AddCollectPointFormPage extends StatefulWidget {
   const AddCollectPointFormPage({super.key});
+
+  @override
+  State<AddCollectPointFormPage> createState() =>
+      _AddCollectPointFormPageState();
+}
+
+class _AddCollectPointFormPageState extends State<AddCollectPointFormPage> {
+  bool _isAdmin = false;
 
   // Widget de criação de campos de texto
   Widget _buildTextField(
     TextEditingController controller,
     String label,
-    TextInputType type,
-  ) {
+    TextInputType type, {
+    bool readOnly = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
-        controller: controller, // Ver o que faz
+        controller: controller,
+        readOnly: readOnly,
         keyboardType: type,
         decoration: InputDecoration(
           hintText: label,
@@ -32,6 +44,52 @@ class AddCollectPointFormPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initUser();
+  }
+
+  Future<void> _initUser() async {
+    try {
+      final fbUser = FirebaseAuth.instance.currentUser;
+      if (fbUser == null) {
+        setState(() {
+          _isAdmin = false;
+        });
+        return;
+      }
+
+      final userRepo = context.read<UserRepository>();
+      final usuario = await userRepo.getUserData(fbUser.uid);
+      final raw = await userRepo.getUserRawData(fbUser.uid);
+      if (usuario != null && usuario.role == 'admin') {
+        // preenche o controller de cidade no viewmodel (evita edição)
+        final vm = context.read<PontosViewmodel>();
+
+        // Tenta popular country/state de chaves comuns no documento do usuário
+        if (raw != null) {
+          final country = raw['country'] ?? raw['pais'] ?? raw['país'];
+          final state = raw['state'] ?? raw['estado'];
+          final city = raw['city'] ?? raw['cidade'];
+          if (country != null) {
+            vm.createCountryController.text = country.toString();
+          }
+          if (state != null) vm.createStateController.text = state.toString();
+          if (city != null) vm.createCityController.text = city.toString();
+        }
+
+        setState(() {
+          _isAdmin = true;
+        });
+      }
+    } catch (e) {
+      // não bloqueia o formulário — logar pode ser útil
+    } finally {
+      // nada extra a fazer
+    }
   }
 
   @override
@@ -107,21 +165,48 @@ class AddCollectPointFormPage extends StatelessWidget {
                               'CEP',
                               TextInputType.number,
                             ),
-                            _buildTextField(
-                              vm.createCountryController,
-                              'País',
-                              TextInputType.text,
-                            ),
-                            _buildTextField(
-                              vm.createStateController,
-                              'Estado',
-                              TextInputType.text,
-                            ),
-                            _buildTextField(
-                              vm.createCityController,
-                              'Cidade',
-                              TextInputType.text,
-                            ),
+
+                            // Se for admin, mostramos o pais, o estado e a cidade do admin como
+                            // read-only (preenchidos no init). Caso contrário,
+                            // deixamos campo editável.
+                            _isAdmin
+                                ? _buildTextField(
+                                    vm.createCountryController,
+                                    'País',
+                                    TextInputType.text,
+                                    readOnly: true,
+                                  )
+                                : _buildTextField(
+                                    vm.createCountryController,
+                                    'País',
+                                    TextInputType.text,
+                                    readOnly: true,
+                                  ),
+                            _isAdmin
+                                ? _buildTextField(
+                                    vm.createStateController,
+                                    'Estado',
+                                    TextInputType.text,
+                                    readOnly: true,
+                                  )
+                                : _buildTextField(
+                                    vm.createStateController,
+                                    'Estado',
+                                    TextInputType.text,
+                                    readOnly: true,
+                                  ),
+                            _isAdmin
+                                ? _buildTextField(
+                                    vm.createCityController,
+                                    'Cidade (sua cidade)',
+                                    TextInputType.text,
+                                    readOnly: true,
+                                  )
+                                : _buildTextField(
+                                    vm.createCityController,
+                                    'Cidade',
+                                    TextInputType.text,
+                                  ),
                             _buildTextField(
                               vm.createNeighborhoodController,
                               'Bairro',

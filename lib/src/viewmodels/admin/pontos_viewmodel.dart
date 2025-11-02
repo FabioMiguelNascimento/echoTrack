@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/src/viewmodels/admin/dtos/point_edit_data.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 
@@ -8,8 +10,9 @@ import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
 
 class PontosViewmodel extends BaseViewModel {
   final CollectPointRepository _repository;
+  final UserRepository _userRepository;
 
-  PontosViewmodel(this._repository);
+  PontosViewmodel(this._repository, this._userRepository);
 
   List<CollectPointModel> _points = [];
   List<PointCardData> get pointCards {
@@ -32,8 +35,6 @@ class PontosViewmodel extends BaseViewModel {
     return PointEditData(
       name: _selectedPoint!.name,
       postal: _selectedPoint!.address.postal,
-      country: _selectedPoint!.address.country,
-      state: _selectedPoint!.address.state,
       city: _selectedPoint!.address.city,
       street: _selectedPoint!.address.street,
       number: _selectedPoint!.address.number,
@@ -106,8 +107,6 @@ class PontosViewmodel extends BaseViewModel {
     notifyListeners(); // Notifica a tela de cadastro para limpar os checkboxes
   }
 
-  // --- 4. LÓGICA DE NEGÓCIO (CRUD) ---
-
   /// Carrega todos os pontos de coleta do repositório.
   Future<void> loadCollectPoints() async {
     setLoading(true);
@@ -142,6 +141,30 @@ class PontosViewmodel extends BaseViewModel {
           "Preencha todos os campos obrigatórios e selecione pelo menos um tipo de lixo.",
         );
       }
+
+      // Restrição B (política escolhida): permitir que o administrador
+      // cadastre apenas pontos dentro da SUA cidade cadastrada no perfil.
+      // Pegamos o usuário atual e consultamos o repositório para obter o perfil.
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('Usuário não autenticado');
+      }
+
+      final usuario = await _userRepository.getUserData(currentUser.uid);
+      if (usuario == null) {
+        throw Exception('Dados do usuário não encontrados');
+      }
+
+      // Se for admin, apenas permita a cidade do admin
+      // if (usuario.role == 'admin') {
+      //   final adminCity = usuario.city.trim().toLowerCase();
+      //   final newCity = createCityController.text.trim().toLowerCase();
+      //   if (adminCity.isEmpty || adminCity != newCity) {
+      //     throw Exception(
+      //       'Você só pode cadastrar pontos na sua cidade: ${usuario.city}',
+      //     );
+      //   }
+      // }
 
       CollectPointModel novoPonto = CollectPointModel(
         name: createNameController.text.trim(),

@@ -62,9 +62,10 @@ class MainApp extends StatelessWidget {
         ),
 
         ChangeNotifierProvider<PontosViewmodel>(
-          create: (context) =>
-              PontosViewmodel(context.read<CollectPointRepository>())
-                ..loadCollectPoints(),
+          create: (context) => PontosViewmodel(
+            context.read<CollectPointRepository>(),
+            context.read<UserRepository>(),
+          )..loadCollectPoints(),
         ),
 
         // Adicione outros ViewModels aqui conforme necessário

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:provider/provider.dart';
 
 class EditCollectPointFormPage extends StatefulWidget {
@@ -25,17 +27,17 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
 
   // Sinaliza se o initState falhou (ex: ponto nulo)
   bool _isLoadingError = false;
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    // Pega o ponto de coleta recebido pelo widget
+    // Pega o ponto de coleta selecionado no ViewModel
     final vm = context.read<PontosViewmodel>();
+    final model = vm.selectedPoint;
 
-    // Pegando os dados do ponto que já está selecioando pelo vm
-    final pointData = vm.getSelectedPointDataForEdit();
-
-    if (pointData == null) {
+    // Pegando os dados do ponto que já está selecionado pelo vm
+    if (model == null) {
       // Erro: O usuário não deveria estar aqui se nada foi selecionado
       _isLoadingError = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,7 +48,6 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
           Navigator.pop(context);
         }
       });
-
       // Inicializa controllers vazios para evitar crash
       _nameController = TextEditingController();
       _postalController = TextEditingController();
@@ -58,15 +59,45 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
       _selectedTrashTypes = [];
       return;
     }
+    _nameController = TextEditingController(text: model.name);
+    _postalController = TextEditingController(text: model.address.postal);
+    _countryController = TextEditingController(text: model.address.country);
+    _stateController = TextEditingController(text: model.address.state);
+    _cityController = TextEditingController(text: model.address.city);
+    _streetController = TextEditingController(text: model.address.street);
+    _numberController = TextEditingController(text: model.address.number);
+    _selectedTrashTypes = List<String>.from(model.trashTypes);
 
-    _nameController = TextEditingController(text: pointData.name);
-    _postalController = TextEditingController(text: pointData.postal);
-    _countryController = TextEditingController(text: pointData.country);
-    _stateController = TextEditingController(text: pointData.state);
-    _cityController = TextEditingController(text: pointData.city);
-    _streetController = TextEditingController(text: pointData.street);
-    _numberController = TextEditingController(text: pointData.number);
-    _selectedTrashTypes = List<String>.from(pointData.trashTypes);
+    // Após inicializar controllers com os dados do ponto, tentamos sobrescrever
+    // country/state/city caso o admin tenha um perfil que deva prevalecer.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initUserAndApply());
+  }
+
+  Future<void> _initUserAndApply() async {
+    try {
+      final fbUser = FirebaseAuth.instance.currentUser;
+      if (fbUser == null) return;
+      final userRepo = context.read<UserRepository>();
+      final usuario = await userRepo.getUserData(fbUser.uid);
+      final raw = await userRepo.getUserRawData(fbUser.uid);
+      if (usuario != null && usuario.role == 'admin') {
+        setState(() {
+          _isAdmin = true;
+        });
+        if (raw != null) {
+          final country = raw['country'] ?? raw['pais'] ?? raw['país'];
+          final state = raw['state'] ?? raw['estado'];
+          // Só sobrescreve se os campos existirem no perfil
+          if (country != null) _countryController.text = country.toString();
+          if (state != null) _stateController.text = state.toString();
+          // para consistência, também podemos sobrescrever cidade se existir
+          final city = raw['city'] ?? raw['municipio'] ?? raw['cidade'];
+          if (city != null) _cityController.text = city.toString();
+        }
+      }
+    } catch (_) {
+      // ignore errors here
+    }
   }
 
   @override
@@ -84,13 +115,15 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
   Widget _buildTextField(
     TextEditingController controller,
     String label,
-    TextInputType type,
-  ) {
+    TextInputType type, {
+    bool readOnly = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
         keyboardType: type,
+        readOnly: readOnly,
         decoration: InputDecoration(
           hintText: label,
           filled: true,
@@ -172,16 +205,19 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                               _countryController,
                               'País',
                               TextInputType.text,
+                              readOnly: _isAdmin,
                             ),
                             _buildTextField(
                               _stateController,
                               'Estado',
                               TextInputType.text,
+                              readOnly: _isAdmin,
                             ),
                             _buildTextField(
                               _cityController,
                               'Cidade',
                               TextInputType.text,
+                              readOnly: _isAdmin,
                             ),
                             _buildTextField(
                               _streetController,

@@ -31,6 +31,8 @@ class CadastroViewModel extends BaseViewModel {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nomeController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
 
   //--- Controladores Específicos ---
@@ -72,6 +74,8 @@ class CadastroViewModel extends BaseViewModel {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
             name: nomeController.text.trim(),
+            country: countryController.text.trim(),
+            state: stateController.text.trim(),
             city: cityController.text.trim(),
             cpf: cpfController.text.trim(),
           );
@@ -83,6 +87,8 @@ class CadastroViewModel extends BaseViewModel {
             password: passwordController.text.trim(),
             name: nomeController.text.trim(), // Nome da Loja
             city: cityController.text.trim(),
+            country: countryController.text.trim(),
+            state: stateController.text.trim(),
             cnpj: cnpjController.text.trim(),
             address: enderecoLojaController.text.trim(),
           );
@@ -93,6 +99,8 @@ class CadastroViewModel extends BaseViewModel {
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
             name: nomeController.text.trim(),
+            country: countryController.text.trim(),
+            state: stateController.text.trim(),
             city: cityController.text.trim(),
           );
           break;
@@ -106,6 +114,8 @@ class CadastroViewModel extends BaseViewModel {
       return true;
     } on FirebaseAuthException catch (e) {
       // Trata erros de cadastro (ex: email já em uso)
+      // Garantir que o loading sempre seja desligado antes de retornar
+      setLoading(false);
       if (e.code == 'email-already-in-use') {
         setError("Este e-mail já está em uso.");
       } else if (e.code == 'weak-password') {
@@ -119,9 +129,17 @@ class CadastroViewModel extends BaseViewModel {
       // Se o Passo 2 ou 3 falhar (ex: erro no Firestore), mas o Passo 1
       // funcionou, temos que deletar o usuário do Auth.
       if (credential?.user != null) {
-        await credential!.user!.delete(); // Deleta o usuário do Auth
+        try {
+          await credential!.user!.delete(); // Deleta o usuário do Auth
+        } catch (deleteErr) {
+          // Se a deleção falhar, registra no log e segue para setError abaixo.
+          // Evitamos estourar a app aqui.
+          // Você pode enviar esse erro para Sentry/Crashlytics se usar.
+        }
       }
 
+      // Garantir que o loading seja desligado
+      setLoading(false);
       setError("Erro ao salvar dados: ${e.toString()}");
       return false;
     }
@@ -133,6 +151,8 @@ class CadastroViewModel extends BaseViewModel {
     emailController.dispose();
     passwordController.dispose();
     nomeController.dispose();
+    countryController.dispose();
+    stateController.dispose();
     cpfController.dispose();
     cnpjController.dispose();
     enderecoLojaController.dispose();

@@ -212,6 +212,16 @@ class CadastroPage extends StatelessWidget {
                           "Senha",
                           TextInputType.visiblePassword,
                         ),
+                      _buildTextField(
+                        vm.countryController,
+                        "País",
+                        TextInputType.visiblePassword,
+                      ),
+                      _buildTextField(
+                        vm.stateController,
+                        "Estado",
+                        TextInputType.visiblePassword,
+                      ),
                         _buildTextField(
                           vm.cityController,
                           "Cidade",

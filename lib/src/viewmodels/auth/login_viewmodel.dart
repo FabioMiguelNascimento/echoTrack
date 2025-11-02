@@ -50,9 +50,12 @@ class LoginViewModel extends BaseViewModel {
 
       if (usuario == null) {
         // Raro, mas pode acontecer: usuário existe no Auth mas não no Firestore
-        // Desloga o usuário para evitar estado inconsistente
+        // Desloga o usuário para evitar estado inconsistente e retorna um erro controlado
         await _authRepo.signOut();
-        throw Exception("Dados do usuário não encontrados. Contate o suporte.");
+        // Garantir que o estado de loading seja desligado e propagar a mensagem para a UI
+        setLoading(false);
+        setError("Dados do usuário não encontrados. Contate o suporte.");
+        return false;
       }
 
       // Sucesso!
