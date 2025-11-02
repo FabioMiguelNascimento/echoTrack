@@ -72,7 +72,6 @@ class CadastroViewModel extends BaseViewModel {
           novoUsuario = NormalUserModel(
             uid: uid,
             email: emailController.text.trim(),
-            password: passwordController.text.trim(),
             name: nomeController.text.trim(),
             country: countryController.text.trim(),
             state: stateController.text.trim(),
@@ -84,7 +83,6 @@ class CadastroViewModel extends BaseViewModel {
           novoUsuario = StoreModel(
             uid: uid,
             email: emailController.text.trim(),
-            password: passwordController.text.trim(),
             name: nomeController.text.trim(), // Nome da Loja
             city: cityController.text.trim(),
             country: countryController.text.trim(),
@@ -97,7 +95,6 @@ class CadastroViewModel extends BaseViewModel {
           novoUsuario = AdminModel(
             uid: uid,
             email: emailController.text.trim(),
-            password: passwordController.text.trim(),
             name: nomeController.text.trim(),
             country: countryController.text.trim(),
             state: stateController.text.trim(),

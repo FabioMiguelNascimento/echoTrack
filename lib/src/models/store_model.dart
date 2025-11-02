@@ -8,7 +8,6 @@ class StoreModel extends UsuarioBaseModel {
   StoreModel({
     required super.uid,
     required super.email,
-    required super.password,
     required super.name,
     required super.country,
     required super.state,
@@ -26,7 +25,6 @@ class StoreModel extends UsuarioBaseModel {
       country: data['country'] ?? '',
       state: data['state'] ?? '',
       city: data['city'] ?? '',
-      password: data['password'] ?? '',
       address: data['address'] ?? '',
       cnpj: data['cnpj'] ?? '',
     );

@@ -7,7 +7,6 @@ class NormalUserModel extends UsuarioBaseModel {
   NormalUserModel({
     required super.uid,
     required super.email,
-    required super.password,
     required super.name,
     required super.country,
     required super.state,
@@ -20,7 +19,6 @@ class NormalUserModel extends UsuarioBaseModel {
     return NormalUserModel(
       uid: data['uid'] ?? doc.id,
       email: data['email'] ?? '',
-      password: data['password'] ?? '',
       name: data['name'] ?? '',
       country: data['country'] ?? '',
       state: data['state'] ?? '',

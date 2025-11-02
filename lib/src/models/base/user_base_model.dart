@@ -8,7 +8,6 @@ import 'package:g1_g2/src/models/store_model.dart';
 abstract class UsuarioBaseModel {
   final String uid;
   final String email;
-  final String password;
   final String name;
   final String country;
   final String state;
@@ -18,7 +17,6 @@ abstract class UsuarioBaseModel {
   UsuarioBaseModel({
     required this.uid,
     required this.email,
-    required this.password,
     required this.name,
     required this.country,
     required this.state,
@@ -50,7 +48,6 @@ abstract class UsuarioBaseModel {
     return {
       'uid': uid,
       'email': email,
-      'password': password,
       'nome': name,
       'country': country,
       'state': state,

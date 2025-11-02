@@ -5,7 +5,6 @@ class AdminModel extends UsuarioBaseModel {
   AdminModel({
     required super.uid,
     required super.email,
-    required super.password,
     required super.name,
     required super.country,
     required super.state,
@@ -18,7 +17,6 @@ class AdminModel extends UsuarioBaseModel {
     return AdminModel(
       uid: data['uid'] ?? doc.id,
       email: data['email'] ?? '',
-      password: data['password'] ?? '',
       name: data['nome'] ?? '',
       country: data['country'] ?? '',
       state: data['state'] ?? '',
