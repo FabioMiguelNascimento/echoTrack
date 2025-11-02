@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Usuários (perfil)
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // Não permitimos escrita pública aqui
+    }
+
+    // PONTOS DE COLETA
+    match /pontosDeColeta/{pointId} {
+      allow read: if true; // leitura pública (ajuste conforme necessidade)
+
+      // Criação: apenas admins autenticados podem criar e somente na sua cidade
+      allow create: if isSignedIn() && isAdmin() &&
+        (request.resource.data.address.city is string) &&
+        (request.resource.data.address.city == getUserCity());
+
+      // Atualização/remoção: apenas admin da mesma cidade pode alterar/excluir
+      allow update, delete: if isSignedIn() && isAdmin() &&
+        (get(/databases/$(database)/documents/pontosDeColeta/$(pointId)).data.address.city == getUserCity());
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function getUserCity() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.city;
+    }
+  }
+}
