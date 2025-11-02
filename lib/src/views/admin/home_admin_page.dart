@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_green_button.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
-import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/add_collect_point_form_page.dart';
 import 'package:g1_g2/src/views/admin/point_options_page.dart';
-import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
@@ -103,11 +101,6 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  children: [
-                    CustomVoltarTextButtom(pageToBack: WelcomeAdminPage()),
-                  ],
-                ),
                 const SizedBox(height: 12),
                 const Text(
                   'Pontos de coleta do município',

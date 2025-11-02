@@ -1,7 +1,6 @@
 // lib/views/cadastro_page.dart (NOVO ARQUIVO)
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart'; // Importe seu VM
 
@@ -94,11 +93,7 @@ class CadastroPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Row(
-                          children: [
-                            CustomVoltarTextButtom(pageToBack: LoginPage()),
-                          ],
-                        ),
+                        Row(children: [CustomVoltarTextButtom()]),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
