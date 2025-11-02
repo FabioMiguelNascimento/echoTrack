@@ -61,7 +61,7 @@ class CadastroPage extends StatelessWidget {
     final vmRead = context.read<CadastroViewModel>();
 
     return Scaffold(
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -74,144 +74,142 @@ class CadastroPage extends StatelessWidget {
           height: MediaQuery.of(context).size.height,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Color(0x20000000)),
-                  ),
-                  shadowColor: Colors.transparent,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30,
-                      bottom: 30,
-                      right: 20,
-                      left: 20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(children: [CustomVoltarTextButtom()]),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Image.asset(
-                                'assets/images/logo2.png',
-                                fit: BoxFit.cover,
-                              ),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Color(0x20000000)),
+              ),
+              shadowColor: Colors.transparent,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 30,
+                  bottom: 30,
+                  right: 20,
+                  left: 20,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(children: [CustomVoltarTextButtom()]),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Criar conta', style: TextStyle(fontSize: 20)),
-                            Text(
-                              'Comece a contribuir com o meio ambiente',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF717182),
-                              ),
+                            child: Image.asset(
+                              'assets/images/logo2.png',
+                              fit: BoxFit.cover,
                             ),
-                          ],
-                        ),
-
-                        SizedBox(height: 15),
-
-                        // Seletor de Tipo de Usuário
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(24, 0, 0, 0),
-                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 5,
-                              right: 5,
-                              top: 1,
-                              bottom: 1,
+                        ],
+                      ),
+                      SizedBox(height: 20),
+
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Criar conta', style: TextStyle(fontSize: 20)),
+                          Text(
+                            'Comece a contribuir com o meio ambiente',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF717182),
                             ),
-                            child: SegmentedButton<TipoUsuario>(
-                              segments: const [
-                                ButtonSegment(
-                                  value: TipoUsuario.cliente,
-                                  label: Text('Cliente'),
-                                ),
-                                ButtonSegment(
-                                  value: TipoUsuario.loja,
-                                  label: Text('Loja'),
-                                ),
-                                // Você pode remover o 'Admin' se o admin
-                                // não puder se cadastrar publicamente
-                                ButtonSegment(
-                                  value: TipoUsuario.admin,
-                                  label: Text('Admin'),
-                                ),
-                              ],
-                              selected: {vm.tipoSelecionado},
-                              onSelectionChanged:
-                                  (Set<TipoUsuario> newSelection) {
-                                    vmRead.setTipoUsuario(newSelection.first);
-                                  },
-                              showSelectedIcon: false,
-                              style:
-                                  SegmentedButton.styleFrom(
-                                    // Cores base
-                                    backgroundColor: Colors
-                                        .transparent, // Fundo cinza (não selecionado)
-                                    selectedBackgroundColor: Colors
-                                        .white, // Fundo branco (selecionado)
-                                    selectedForegroundColor: Color(
-                                      0xFF00A63E,
-                                    ), // Texto verde (selecionado)
-                                  ).copyWith(
-                                    // Customizações adicionais
+                          ),
+                        ],
+                      ),
 
-                                    // 1. Remove a borda preta
-                                    side: WidgetStateProperty.all(
-                                      BorderSide.none,
-                                    ),
+                      SizedBox(height: 15),
 
-                                    // 2. ARREDONDA TUDO (o contêiner e o botão selecionado)
-                                    shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                      // Seletor de Tipo de Usuário
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(24, 0, 0, 0),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 5,
+                            right: 5,
+                            top: 1,
+                            bottom: 1,
+                          ),
+                          child: SegmentedButton<TipoUsuario>(
+                            segments: const [
+                              ButtonSegment(
+                                value: TipoUsuario.cliente,
+                                label: Text('Cliente'),
+                              ),
+                              ButtonSegment(
+                                value: TipoUsuario.loja,
+                                label: Text('Loja'),
+                              ),
+                              // Você pode remover o 'Admin' se o admin
+                              // não puder se cadastrar publicamente
+                              ButtonSegment(
+                                value: TipoUsuario.admin,
+                                label: Text('Admin'),
+                              ),
+                            ],
+                            selected: {vm.tipoSelecionado},
+                            onSelectionChanged:
+                                (Set<TipoUsuario> newSelection) {
+                                  vmRead.setTipoUsuario(newSelection.first);
+                                },
+                            showSelectedIcon: false,
+                            style:
+                                SegmentedButton.styleFrom(
+                                  // Cores base
+                                  backgroundColor: Colors
+                                      .transparent, // Fundo cinza (não selecionado)
+                                  selectedBackgroundColor: Colors
+                                      .white, // Fundo branco (selecionado)
+                                  selectedForegroundColor: Color(
+                                    0xFF00A63E,
+                                  ), // Texto verde (selecionado)
+                                ).copyWith(
+                                  // Customizações adicionais
+
+                                  // 1. Remove a borda preta
+                                  side: WidgetStateProperty.all(
+                                    BorderSide.none,
+                                  ),
+
+                                  // 2. ARREDONDA TUDO (o contêiner e o botão selecionado)
+                                  shape: WidgetStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                            ),
+                                ),
                           ),
                         ),
+                      ),
 
-                        SizedBox(height: 15),
+                      SizedBox(height: 15),
 
-                        // --- Campos Comuns ---
-                        _buildTextField(
-                          vm.nomeController,
-                          "Nome Completo",
-                          TextInputType.name,
-                        ),
-                        _buildTextField(
-                          vm.emailController,
-                          "E-mail",
-                          TextInputType.emailAddress,
-                        ),
-                        _buildTextField(
-                          vm.passwordController,
-                          "Senha",
-                          TextInputType.visiblePassword,
-                        ),
+                      // --- Campos Comuns ---
+                      _buildTextField(
+                        vm.nomeController,
+                        "Nome Completo",
+                        TextInputType.name,
+                      ),
+                      _buildTextField(
+                        vm.emailController,
+                        "E-mail",
+                        TextInputType.emailAddress,
+                      ),
+                      _buildTextField(
+                        vm.passwordController,
+                        "Senha",
+                        TextInputType.visiblePassword,
+                      ),
                       _buildTextField(
                         vm.countryController,
                         "País",
@@ -222,70 +220,70 @@ class CadastroPage extends StatelessWidget {
                         "Estado",
                         TextInputType.visiblePassword,
                       ),
-                        _buildTextField(
-                          vm.cityController,
-                          "Cidade",
-                          TextInputType.text,
+                      _buildTextField(
+                        vm.cityController,
+                        "Cidade",
+                        TextInputType.text,
+                      ),
+
+                      // --- Campos Condicionais ---
+                      _buildConditionalFields(vm),
+
+                      SizedBox(height: 15),
+                      // --- Botão de Cadastrar ---
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Color(0xff00A63E),
                         ),
+                        onPressed: vm.isLoading
+                            ? null
+                            : () async {
+                                FocusScope.of(context).unfocus();
+                                bool sucesso = await vmRead.cadastrar();
 
-                        // --- Campos Condicionais ---
-                        _buildConditionalFields(vm),
+                                if (!context.mounted) return;
 
-                        SizedBox(height: 15),
-                        // --- Botão de Cadastrar ---
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: Color(0xff00A63E),
-                          ),
-                          onPressed: vm.isLoading
-                              ? null
-                              : () async {
-                                  FocusScope.of(context).unfocus();
-                                  bool sucesso = await vmRead.cadastrar();
-
-                                  if (!context.mounted) return;
-
-                                  if (sucesso) {
-                                    // Sucesso! Mostra msg e volta p/ login
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Cadastro realizado com sucesso!",
-                                        ),
-                                        backgroundColor: Colors.green,
+                                if (sucesso) {
+                                  // Sucesso! Mostra msg e volta p/ login
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Cadastro realizado com sucesso!",
                                       ),
-                                    );
-                                    Navigator.pop(
-                                      context,
-                                    ); // Volta p/ tela de login
-                                  } else {
-                                    // Erro! Mostra msg
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          vm.errorMessage ?? "Erro no cadastro",
-                                        ),
-                                        backgroundColor: Colors.red,
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(
+                                    context,
+                                  ); // Volta p/ tela de login
+                                } else {
+                                  // Erro! Mostra msg
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        vm.errorMessage ?? "Erro no cadastro",
                                       ),
-                                    );
-                                  }
-                                },
-                          child: vm.isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  "Cadastrar",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                        child: vm.isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                "Cadastrar",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
                                 ),
-                        ),
-                      ],
-                    ),
+                              ),
+                      ),
+                      SizedBox(height: 5),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
