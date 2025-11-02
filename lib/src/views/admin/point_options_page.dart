@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_dashboard_card.dart'; // <-- Importe o card
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/views/admin/home_admin_page.dart';
+import 'package:g1_g2/src/views/admin/user_feedbacks_list_page.dart';
 import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/edit_collect_point_form_page.dart';
@@ -29,9 +29,7 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
         child: Column(
           children: [
             // Botão "Voltar" simples
-            Row(
-              children: [CustomVoltarTextButtom(pageToBack: HomeAdminPage())],
-            ),
+            Row(children: [CustomVoltarTextButtom()]),
             const SizedBox(height: 24),
 
             // Título (nome do ponto)
@@ -60,8 +58,13 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
               icon: Icons.people_outline_rounded,
               title: 'O que a população diz',
               subtitle: '0 - Observações',
-              onTap: () {
-                // TODO: Navegar para a tela de observações
+              onTap: () async {
+                // Navega para a tela de edição e aguarda resultado
+                final result = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (context) => UserFeedbacksListPage(),
+                  ),
+                );
               },
             ),
 
@@ -103,17 +106,58 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(
+                          color: const Color.fromARGB(255, 161, 161, 161),
+                          width: 1,
+                        ),
+                      ),
                       title: const Text('Confirmar exclusão'),
                       content: const Text(
                         'Tem certeza que deseja excluir este ponto de coleta? Esta ação não pode ser desfeita.',
                       ),
                       actions: [
-                        TextButton(
+                        OutlinedButton(
                           onPressed: () => Navigator.of(context).pop(false),
+                          style: OutlinedButton.styleFrom(
+                            // Cor do texto
+                            foregroundColor: Colors.black87,
+                            // Cor de fundo
+                            backgroundColor: Colors.white,
+                            // Altura do botão
+                            minimumSize: const Size(0, 50),
+                            // Borda (cor e largura)
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                            // Cantos arredondados (igual aos seus TextFields)
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           child: const Text('Não'),
                         ),
-                        TextButton(
+                        ElevatedButton(
                           onPressed: () => Navigator.of(context).pop(true),
+                          style: ElevatedButton.styleFrom(
+                            // Cor do fundo (verde da sua app)
+                            backgroundColor: const Color(0xff00A63E),
+                            // Cor do texto e ícone (branco)
+                            foregroundColor: Colors.white,
+                            // Cor do fundo quando desabilitado (loading)
+                            disabledBackgroundColor: const Color(0xff00A63E),
+                            // Cor do texto/ícone quando desabilitado
+                            disabledForegroundColor: Colors.white,
+                            // Altura do botão
+                            minimumSize: const Size(0, 50),
+                            // Cantos arredondados
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            shadowColor: Colors.transparent,
+                          ),
                           child: const Text('Sim'),
                         ),
                       ],
