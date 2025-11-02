@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                         Text('Right EcoPoints', style: TextStyle(fontSize: 24)),
                         Text(
                           'Facilite a coleta de lixo sustentável',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,
                             color: Color(0xff717182),
