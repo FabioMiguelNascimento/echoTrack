@@ -42,7 +42,7 @@ class HomeSelector extends StatelessWidget {
             // Marcar como visto e mostrar Welcome
             _setHasSeenWelcome(user.uid, userType);
             if (userType == 'admin') {
-              return WelcomeAdminPage(uid: user.uid, userType: userType);
+              return WelcomeAdminPage();
             } else if (userType == 'store') {
               return const WelcomeStorePage();
             } else {
