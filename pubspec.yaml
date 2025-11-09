@@ -18,6 +18,7 @@ dependencies:
   provider: ^6.1.5+1
   shadcn_flutter: ^0.0.44
   shared_preferences: ^2.5.3
+  floating_navbar: ^3.0.0
 
 dev_dependencies:
   flutter_test:
