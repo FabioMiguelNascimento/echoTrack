@@ -163,235 +163,233 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: Container(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Row(children: [SizedBox(width: 24), CustomVoltarTextButtom()]),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Card(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                'Editar ponto de coleta',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 20),
-                              ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Row(children: [SizedBox(width: 24), CustomVoltarTextButtom()]),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Card(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              'Editar ponto de coleta',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 20),
                             ),
-                            SizedBox(height: 20),
-                            Text('Nome:'),
-                            _buildTextField(
-                              _nameController,
-                              'Nome do ponto',
-                              TextInputType.text,
-                            ),
-                            SizedBox(height: 20),
-                            Text('Endereço:'),
-                            _buildTextField(
-                              _postalController,
-                              'CEP',
-                              TextInputType.number,
-                            ),
-                            _buildTextField(
-                              _countryController,
-                              'País',
-                              TextInputType.text,
-                              readOnly: _isAdmin,
-                            ),
-                            _buildTextField(
-                              _stateController,
-                              'Estado',
-                              TextInputType.text,
-                              readOnly: _isAdmin,
-                            ),
-                            _buildTextField(
-                              _cityController,
-                              'Cidade',
-                              TextInputType.text,
-                              readOnly: _isAdmin,
-                            ),
-                            _buildTextField(
-                              _streetController,
-                              'Rua',
-                              TextInputType.text,
-                            ),
-                            _buildTextField(
-                              _numberController,
-                              'Número',
-                              TextInputType.number,
-                            ),
-                            SizedBox(height: 20),
-                            Text('Tipos de lixo aceitos:'),
-                            SizedBox(height: 5),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: vm.availableTrashTypes.length,
-                              itemBuilder: (context, index) {
-                                final type = vm.availableTrashTypes[index];
-
-                                // Use uma cor padrão (cinza) caso o tipo não esteja no mapa
-                                final Color itemColor =
-                                    coresLixo[type] ?? Colors.grey;
-
-                                return CustomCheckboxTile(
-                                  title: type,
-                                  color: itemColor,
-                                  value: _selectedTrashTypes.contains(type),
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        _selectedTrashTypes.add(type);
-                                      } else {
-                                        _selectedTrashTypes.remove(type);
-                                      }
-                                    });
-                                  },
-                                );
-                              },
-                            ),
-                            SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
+                          ),
+                          SizedBox(height: 20),
+                          Text('Nome:'),
+                          _buildTextField(
+                            _nameController,
+                            'Nome do ponto',
+                            TextInputType.text,
+                          ),
+                          SizedBox(height: 20),
+                          Text('Endereço:'),
+                          _buildTextField(
+                            _postalController,
+                            'CEP',
+                            TextInputType.number,
+                          ),
+                          _buildTextField(
+                            _countryController,
+                            'País',
+                            TextInputType.text,
+                            readOnly: _isAdmin,
+                          ),
+                          _buildTextField(
+                            _stateController,
+                            'Estado',
+                            TextInputType.text,
+                            readOnly: _isAdmin,
+                          ),
+                          _buildTextField(
+                            _cityController,
+                            'Cidade',
+                            TextInputType.text,
+                            readOnly: _isAdmin,
+                          ),
+                          _buildTextField(
+                            _streetController,
+                            'Rua',
+                            TextInputType.text,
+                          ),
+                          _buildTextField(
+                            _numberController,
+                            'Número',
+                            TextInputType.number,
+                          ),
+                          SizedBox(height: 20),
+                          Text('Tipos de lixo aceitos:'),
+                          SizedBox(height: 5),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: vm.availableTrashTypes.length,
+                            itemBuilder: (context, index) {
+                              final type = vm.availableTrashTypes[index];
+      
+                              // Use uma cor padrão (cinza) caso o tipo não esteja no mapa
+                              final Color itemColor =
+                                  coresLixo[type] ?? Colors.grey;
+      
+                              return CustomCheckboxTile(
+                                title: type,
+                                color: itemColor,
+                                value: _selectedTrashTypes.contains(type),
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      _selectedTrashTypes.add(type);
+                                    } else {
+                                      _selectedTrashTypes.remove(type);
+                                    }
+                                  });
                                 },
-                                style: OutlinedButton.styleFrom(
-                                  // Cor do texto
-                                  foregroundColor: Colors.black87,
-                                  // Cor de fundo
-                                  backgroundColor: Colors.white,
-                                  // Altura do botão
-                                  minimumSize: const Size(0, 50),
-                                  // Borda (cor e largura)
-                                  side: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ),
-                                  // Cantos arredondados (igual aos seus TextFields)
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                // Cor do texto
+                                foregroundColor: Colors.black87,
+                                // Cor de fundo
+                                backgroundColor: Colors.white,
+                                // Altura do botão
+                                minimumSize: const Size(0, 50),
+                                // Borda (cor e largura)
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
                                 ),
-                                child: Text(
-                                  'Cancelar',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                // Cantos arredondados (igual aos seus TextFields)
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            SizedBox(height: 10.0),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  // Cor do fundo (verde da sua app)
-                                  backgroundColor: const Color(0xff00A63E),
-                                  // Cor do texto e ícone (branco)
-                                  foregroundColor: Colors.white,
-                                  // Cor do fundo quando desabilitado (loading)
-                                  disabledBackgroundColor: const Color(
-                                    0xff00A63E,
-                                  ),
-                                  // Cor do texto/ícone quando desabilitado
-                                  disabledForegroundColor: Colors.white,
-                                  // Altura do botão
-                                  minimumSize: const Size(0, 50),
-                                  // Cantos arredondados
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                          ),
+                          SizedBox(height: 10.0),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                // Cor do fundo (verde da sua app)
+                                backgroundColor: const Color(0xff00A63E),
+                                // Cor do texto e ícone (branco)
+                                foregroundColor: Colors.white,
+                                // Cor do fundo quando desabilitado (loading)
+                                disabledBackgroundColor: const Color(
+                                  0xff00A63E,
                                 ),
-                                onPressed: vm.isLoading
-                                    ? null
-                                    : () async {
-                                        final BuildContext localContext =
-                                            context;
-
-                                        if (_nameController.text.isEmpty ||
-                                            _selectedTrashTypes.isEmpty) {
-                                          ScaffoldMessenger.of(
-                                            localContext,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Preencha nome e selecione ao menos um tipo de lixo',
-                                              ),
-                                            ),
-                                          );
-                                          return;
-                                        }
-
-                                        final success = await vmRead
-                                            .updatePointFromForm(
-                                              name: _nameController.text.trim(),
-                                              postal: _postalController.text
-                                                  .trim(),
-                                              country: _countryController.text
-                                                  .trim(),
-                                              state: _stateController.text
-                                                  .trim(),
-                                              city: _cityController.text.trim(),
-                                              street: _streetController.text
-                                                  .trim(),
-                                              number: _numberController.text
-                                                  .trim(),
-                                              trashTypes: _selectedTrashTypes,
-                                            );
-
-                                        if (!localContext.mounted) return;
-
-                                        if (success) {
-                                          ScaffoldMessenger.of(
-                                            localContext,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Ponto atualizado com sucesso',
-                                              ),
-                                            ),
-                                          );
-                                          // Retorna 'true' para a página de Detalhes
-                                          Navigator.pop(localContext, true);
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            localContext,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                vm.errorMessage ??
-                                                    'Erro ao atualizar',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                child: vm.isLoading
-                                    ? const CircularProgressIndicator()
-                                    : const Text('Salvar alterações'),
+                                // Cor do texto/ícone quando desabilitado
+                                disabledForegroundColor: Colors.white,
+                                // Altura do botão
+                                minimumSize: const Size(0, 50),
+                                // Cantos arredondados
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
+                              onPressed: vm.isLoading
+                                  ? null
+                                  : () async {
+                                      final BuildContext localContext =
+                                          context;
+      
+                                      if (_nameController.text.isEmpty ||
+                                          _selectedTrashTypes.isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Preencha nome e selecione ao menos um tipo de lixo',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
+      
+                                      final success = await vmRead
+                                          .updatePointFromForm(
+                                            name: _nameController.text.trim(),
+                                            postal: _postalController.text
+                                                .trim(),
+                                            country: _countryController.text
+                                                .trim(),
+                                            state: _stateController.text
+                                                .trim(),
+                                            city: _cityController.text.trim(),
+                                            street: _streetController.text
+                                                .trim(),
+                                            number: _numberController.text
+                                                .trim(),
+                                            trashTypes: _selectedTrashTypes,
+                                          );
+      
+                                      if (!localContext.mounted) return;
+      
+                                      if (success) {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Ponto atualizado com sucesso',
+                                            ),
+                                          ),
+                                        );
+                                        // Retorna 'true' para a página de Detalhes
+                                        Navigator.pop(localContext, true);
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              vm.errorMessage ??
+                                                  'Erro ao atualizar',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              child: vm.isLoading
+                                  ? const CircularProgressIndicator()
+                                  : const Text('Salvar alterações'),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
