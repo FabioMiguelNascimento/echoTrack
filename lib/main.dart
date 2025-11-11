@@ -67,12 +67,6 @@ class MainApp extends StatelessWidget {
             context.read<UserRepository>(),
           )..loadCollectPoints(),
         ),
-
-        // Adicione outros ViewModels aqui conforme necessário
-        // Ex:
-        // ChangeNotifierProvider<OutroViewModel>(
-        //   create: (contexto) => OutroViewModel(contexto.read<OutroRepository>()),
-        // ),
       ],
       child: MaterialApp(
         title: 'Seu App de Coleta',
