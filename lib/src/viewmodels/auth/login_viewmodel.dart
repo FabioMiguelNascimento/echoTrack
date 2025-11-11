@@ -9,7 +9,6 @@ enum UserRole { admin, store, user }
 
 class LoginViewModel extends BaseViewModel {
   // 1. Dependências (Repos)
-  // (Para um projeto real, injete-os via get_it ou provider)
   final AuthRepository _authRepo;
   final UserRepository _userRepo;
 
@@ -35,7 +34,7 @@ class LoginViewModel extends BaseViewModel {
     setLoading(true);
 
     try {
-      // Passo 1: Autenticar no Firebase Auth
+      // Tenta logar o usuário
       final credential = await _authRepo.signInWithEmailAndPassword(
         emailController.text.trim(),
         passwordController.text.trim(),
@@ -45,14 +44,11 @@ class LoginViewModel extends BaseViewModel {
 
       final uid = credential.user!.uid;
 
-      // Passo 2: Buscar dados do usuário no Firestore
+      // Pega os dados do usuário
       final usuario = await _userRepo.getUserData(uid);
 
       if (usuario == null) {
-        // Raro, mas pode acontecer: usuário existe no Auth mas não no Firestore
-        // Desloga o usuário para evitar estado inconsistente e retorna um erro controlado
         await _authRepo.signOut();
-        // Garantir que o estado de loading seja desligado e propagar a mensagem para a UI
         setLoading(false);
         setError("Dados do usuário não encontrados. Contate o suporte.");
         return false;
@@ -63,11 +59,12 @@ class LoginViewModel extends BaseViewModel {
       setLoading(false);
       return true;
     } on FirebaseAuthException catch (e) {
-      // Trata erros de login (ex: senha errada)
       if (e.code == 'user-not-found' ||
           e.code == 'wrong-password' ||
           e.code == 'invalid-credential') {
         setError("E-mail ou senha inválidos.");
+      } else if (e.code == 'network-request-failed') {
+        setError("Verifique sua conexão e tente novamente");
       } else {
         setError("Ocorreu um erro desconhecido. Tente novamente.");
       }
@@ -79,7 +76,7 @@ class LoginViewModel extends BaseViewModel {
     }
   }
 
-  /// Retorna o papel do usuário baseado no UID, sem importar UsuarioBaseModel no main.dart
+  // Retorna o papel do usuário baseado no UID, sem importar UsuarioBaseModel no main.dart
   Future<UserRole> getUserRole(String uid) async {
     final usuario = await _userRepo.getUserData(uid);
     if (usuario == null) {
