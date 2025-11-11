@@ -1,10 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
+import 'package:g1_g2/src/views/auth/cadastro_page.dart';
 import 'package:g1_g2/src/views/store/welcome_store_page.dart';
 import 'package:g1_g2/src/views/user/welcome_user_page.dart';
 import 'package:provider/provider.dart';
-import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
-import 'package:g1_g2/src/views/auth/cadastro_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -155,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                                       paginaDestino = WelcomeStorePage();
                                     } else if (usuario?.role == 'user') {
                                       // Se for Cliente...
-                                      paginaDestino = WelcomeUserPage();
+                                      paginaDestino = WelcomeUserPage(uid: FirebaseAuth.instance.currentUser!.uid, userType: usuario!.role);
                                     } else {
                                       // Se for nulo ou desconhecido (não deve acontecer)
                                       ScaffoldMessenger.of(

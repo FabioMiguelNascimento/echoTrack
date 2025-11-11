@@ -1,14 +1,14 @@
 // Libs
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 // Pages
 import 'package:g1_g2/src/views/admin/home_admin_page.dart';
 import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
-import 'package:g1_g2/src/views/store/welcome_store_page.dart';
-import 'package:g1_g2/src/views/user/welcome_user_page.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
+import 'package:g1_g2/src/views/store/welcome_store_page.dart';
+import 'package:g1_g2/src/views/user/home_user_page.dart';
+import 'package:g1_g2/src/views/user/welcome_user_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Classe que seleciona a página que será exibida ao abrir o app
 class HomeSelector extends StatelessWidget {
@@ -42,11 +42,11 @@ class HomeSelector extends StatelessWidget {
             // Marcar como visto e mostrar Welcome
             _setHasSeenWelcome(user.uid, userType);
             if (userType == 'admin') {
-              return const WelcomeAdminPage();
+              return WelcomeAdminPage();
             } else if (userType == 'store') {
               return const WelcomeStorePage();
             } else {
-              return const WelcomeUserPage();
+              return WelcomeUserPage(uid: user.uid, userType: userType);
             }
           } else {
             // Já viu, ir direto para Home
@@ -55,7 +55,7 @@ class HomeSelector extends StatelessWidget {
             } else if (userType == 'store') {
               // return const HomeStorePage();
             } else {
-              // return const HomeUserPage();
+              return const HomeUserPage();
             }
           }
         } else {

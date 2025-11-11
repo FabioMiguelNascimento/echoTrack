@@ -12,9 +12,13 @@ dependencies:
   firebase_core: ^4.2.0
   flutter:
     sdk: flutter
+  google_maps_flutter: ^2.5.0
+  flutter_polyline_points: ^3.1.0
+  location: ^8.0.1
   provider: ^6.1.5+1
   shadcn_flutter: ^0.0.44
   shared_preferences: ^2.5.3
+  floating_navbar: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -28,3 +32,4 @@ flutter:
     - assets/images/logo2.png
     - assets/images/vitor.jpg
     #   - images/a_dot_ham.jpeg
+  
