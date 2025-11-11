@@ -63,11 +63,12 @@ class _AddCollectPointFormPageState extends State<AddCollectPointFormPage> {
       }
 
       final userRepo = context.read<UserRepository>();
+      final vm = context.read<PontosViewmodel>();
       final usuario = await userRepo.getUserData(fbUser.uid);
       final raw = await userRepo.getUserRawData(fbUser.uid);
+
       if (usuario != null && usuario.role == 'admin') {
         // preenche o controller de cidade no viewmodel (evita edição)
-        final vm = context.read<PontosViewmodel>();
 
         // Tenta popular country/state de chaves comuns no documento do usuário
         if (raw != null) {

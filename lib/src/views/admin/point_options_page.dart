@@ -60,7 +60,7 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
               subtitle: '0 - Observações',
               onTap: () async {
                 // Navega para a tela de edição e aguarda resultado
-                final result = await Navigator.of(context).push<bool>(
+                await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (context) => UserFeedbacksListPage(),
                   ),
@@ -85,8 +85,10 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
                 );
                 if (result == true) {
                   // Recarrega a lista no ViewModel registrado globalmente
-                  final vm = context.read<PontosViewmodel>();
-                  await vm.refresh();
+                  if (context.mounted) {
+                    final vm = context.read<PontosViewmodel>();
+                    await vm.refresh();
+                  }
                 }
               },
             ),
