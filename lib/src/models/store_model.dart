@@ -3,7 +3,7 @@ import 'package:g1_g2/src/models/base/user_base_model.dart';
 
 class StoreModel extends UsuarioBaseModel {
   final String address; // <-- Campo específico da Loja
-  final String cnpj;     // <-- Campo específico da Loja
+  final String cnpj; // <-- Campo específico da Loja
 
   StoreModel({
     required super.uid,
@@ -33,10 +33,7 @@ class StoreModel extends UsuarioBaseModel {
   @override
   Map<String, dynamic> toJson() {
     final data = super.toJson();
-    data.addAll({
-      'address': address,
-      'cnpj': cnpj,
-    });
+    data.addAll({'address': address, 'cnpj': cnpj});
     return data;
   }
 }

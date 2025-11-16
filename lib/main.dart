@@ -2,6 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -66,6 +67,13 @@ class MainApp extends StatelessWidget {
             context.read<CollectPointRepository>(),
             context.read<UserRepository>(),
           )..loadCollectPoints(),
+        ),
+
+        ChangeNotifierProvider<UserViewmodel>(
+          create: (context) => UserViewmodel(
+            context.read<UserRepository>(),
+            context.read<AuthRepository>(),
+          ),
         ),
       ],
       child: MaterialApp(

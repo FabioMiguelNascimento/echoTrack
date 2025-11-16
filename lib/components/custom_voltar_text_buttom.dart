@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CustomVoltarTextButtom extends StatelessWidget {
-  const CustomVoltarTextButtom({super.key});
+  final Widget? pageToBack;
+  const CustomVoltarTextButtom({super.key, this.pageToBack});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +12,14 @@ class CustomVoltarTextButtom extends StatelessWidget {
         iconColor: Colors.black,
       ),
       onPressed: () {
-        Navigator.pop(context);
+        if (pageToBack == null) {
+          Navigator.pop(context);
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => pageToBack!),
+          );
+        }
       },
       icon: Icon(Icons.arrow_back),
       label: Text('Voltar', style: TextStyle(color: Colors.black)),

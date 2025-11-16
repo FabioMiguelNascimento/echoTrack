@@ -17,7 +17,7 @@ class AdminModel extends UsuarioBaseModel {
     return AdminModel(
       uid: data['uid'] ?? doc.id,
       email: data['email'] ?? '',
-      name: data['nome'] ?? '',
+      name: data['name'] ?? '',
       country: data['country'] ?? '',
       state: data['state'] ?? '',
       city: data['municipio'] ?? '', // <-- Pega o campo específico

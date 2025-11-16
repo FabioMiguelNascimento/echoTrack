@@ -39,4 +39,20 @@ class UserRepository {
         .doc(usuario.uid)
         .set(usuario.toJson());
   }
+
+  // Para atualizar o usuário
+  Future<void> updateUserData(String uid, UsuarioBaseModel updatedUser) async {
+    try {
+      await _db
+          .collection(_collectionPath)
+          .doc(uid)
+          .update(updatedUser.toJson());
+    } catch (e, stackTrace) {
+      print('--- ERRO AO ATUALIZAR USUÁRIO ---');
+      print('ID: $uid');
+      print('ERRO: $e');
+      print('STACK TRACE: $stackTrace');
+      print('-------------------------------');
+    }
+  }
 }

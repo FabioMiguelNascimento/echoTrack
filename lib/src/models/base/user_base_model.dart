@@ -48,7 +48,7 @@ abstract class UsuarioBaseModel {
     return {
       'uid': uid,
       'email': email,
-      'nome': name,
+      'name': name,
       'country': country,
       'state': state,
       'city': city,
