@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
+import 'package:g1_g2/src/repositories/auth_repository.dart'; // Mantido para signOut
 import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:g1_g2/src/views/user/home_user_page.dart';
@@ -14,82 +15,115 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Seus controllers locais
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final countryController = TextEditingController();
-  final stateController = TextEditingController();
-  final cityController = TextEditingController();
-  final cpfController = TextEditingController();
+  // Seus controllers locais (mantidos como você os tem)
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _countryController;
+  late TextEditingController _stateController;
+  late TextEditingController _cityController;
+  late TextEditingController _cpfController;
 
   bool _isEmailEditable = false;
+  bool _isLoadingError = false; // Sinaliza se o initState falhou
 
   @override
   void initState() {
     super.initState();
     final vm = context.read<UserViewmodel>();
 
+    // Inicializa os controllers para o primeiro build (vazios)
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _countryController = TextEditingController();
+    _stateController = TextEditingController();
+    _cityController = TextEditingController();
+    _cpfController = TextEditingController();
+
+    // Agenda o carregamento de dados para DEPOIS do primeiro build.
+    // Esta lógica de carregamento é a que você pediu para manter.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      
-      // 1. Manda o VM carregar os dados
-      vm.loadCurrentUser().then((_) {
-        // 2. DEPOIS que carregar, preenche o formulário
-        // (Verifica se a tela ainda existe)
-        if (mounted) {
+      vm.loadCurrentUser().then((success) {
+        if (success && mounted) {
+          // Se carregar com sucesso, preenche o formulário
           _fillForm(vm);
+          setState(() {}); // Força a reconstrução com os dados
+        } else if (!success && mounted) {
+          // Se falhar, marca erro e mostra SnackBar
+          setState(() {
+            _isLoadingError = true; // Define o erro de carregamento inicial
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                vm.errorMessage ?? 'Erro ao carregar dados do usuário.',
+              ),
+            ),
+          );
+          // Opcional: navegar para trás se o carregamento falhou criticamente
+          // Navigator.pop(context);
         }
       });
-      
     });
   }
 
-  // Preenche o formulário usando os Getters seguros do VM
+  // Helper para preencher usando os Getters do VM (lógica mantida)
   void _fillForm(UserViewmodel vm) {
-    nameController.text = vm.currentUserName;
-    emailController.text = vm.currentUserEmail;
-    countryController.text = vm.currentUserCountry;
-    stateController.text = vm.currentUserState;
-    cityController.text = vm.currentUserCity;
-    cpfController.text = vm.currentUserCpf;
+    _nameController.text = vm.currentUserName;
+    _emailController.text = vm.currentUserEmail;
+    _countryController.text = vm.currentUserCountry;
+    _stateController.text = vm.currentUserState;
+    _cityController.text = vm.currentUserCity;
+    _cpfController.text = vm.currentUserCpf;
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    countryController.dispose();
-    stateController.dispose();
-    cityController.dispose();
-    cpfController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _countryController.dispose();
+    _stateController.dispose();
+    _cityController.dispose();
+    _cpfController.dispose();
     super.dispose();
   }
 
-  // (O _buildTextField pode ser o mesmo da resposta anterior)
+  // --- NOVO: _buildTextField com o estilo do EditCollectPointFormPage ---
   Widget _buildTextField(
+    TextEditingController controller,
     String label,
-    TextEditingController controller, {
-    bool isReadOnly = false,
+    TextInputType type, {
+    bool readOnly = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Inclui o label acima do TextField, como no seu exemplo
           Text(
-            label,
+            '${label.split(' ')[0]}:', // Pega a primeira palavra do label para título (e-mail, nome, etc)
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: controller,
-            readOnly: isReadOnly,
+            keyboardType: type,
+            readOnly: readOnly,
             decoration: InputDecoration(
+              hintText: label, // O hintText será o label completo
               filled: true,
-              fillColor: Colors.grey[200],
-              border: OutlineInputBorder(
+              // Cores e bordas copiadas do seu EditCollectPointFormPage
+              focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(width: 2, color: Color(0xff00A63E)),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  style: BorderStyle.none,
+                ), // Sem borda visível normalmente
+              ),
+              // Adiciona o ícone de "editar" para o campo de e-mail
               suffixIcon: label == 'E-mail'
                   ? IconButton(
                       icon: Icon(
@@ -110,218 +144,249 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Card de Informações
-  Widget _buildInfoCard(UserViewmodel vm, UserViewmodel vmRead) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Informações Pessoais',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              'Atualize seus dados cadastrais',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            _buildTextField('Nome Completo', nameController),
-            _buildTextField(
-              'E-mail',
-              emailController,
-              isReadOnly: !_isEmailEditable,
-            ),
-            _buildTextField('CPF', cpfController),
-            _buildTextField('País', countryController),
-            _buildTextField('Estado', stateController),
-            _buildTextField('Cidade', cityController),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      _fillForm(vm); // Reseta para os dados do VM
-                    },
-                    child: const Text('Cancelar'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: vm.isLoading
-                        ? const SizedBox.shrink()
-                        : const Icon(Icons.save, size: 20),
-                    label: vm.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Salvar Alterações'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A63E),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: vm.isLoading
-                        ? null
-                        : () async {
-                            final localContext = context;
-
-                            // Chama o método 'updateProfile' do SEU VM
-                            final success = await vmRead.updateProfile(
-                              name: nameController.text.trim(),
-                              email: emailController.text.trim(),
-                              country: countryController.text.trim(),
-                              state: stateController.text.trim(),
-                              city: cityController.text.trim(),
-                              cpf: cpfController.text.trim(),
-                            );
-
-                            if (!localContext.mounted) return;
-
-                            if (success) {
-                              ScaffoldMessenger.of(localContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Perfil atualizado!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(localContext).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    vm.errorMessage ?? 'Erro ao salvar',
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Card de Ações
-  Widget _buildActionsCard(UserViewmodel vmRead) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Ações da Conta',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            OutlinedButton(
-              onPressed: () {
-                /* TODO: Alterar senha */
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Alterar Senha'),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.logout, size: 20),
-              label: const Text('Sair da Conta'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDC2626), // Vermelho
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () async {
-                final localContext = context;
-                // Chama o signOut do SEU VM
-                await vmRead.signOut();
-
-                if (localContext.mounted) {
-                  Navigator.of(localContext).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                    (route) => false,
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  // --- NOVO: Build com o layout completo do EditCollectPointFormPage ---
   @override
   Widget build(BuildContext context) {
-    // 'watch' redesenha a tela quando 'notifyListeners' é chamado
-    final vm = context.watch<UserViewmodel>();
-    final vmRead = context.read<UserViewmodel>();
+    final vm = context
+        .watch<UserViewmodel>(); // 'watch' para reagir a mudanças no VM
+    final vmRead = context.read<UserViewmodel>(); // 'read' para chamar métodos
 
-    return CustomInitialLayout(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+    // Se houve erro no carregamento inicial (ex: usuário não logado)
+    if (_isLoadingError) {
+      return const Scaffold(
+        body: Center(child: Text('Falha ao carregar perfil.')),
+      );
+    }
+
+    // Se o ViewModel está carregando E os campos ainda não foram preenchidos
+    if (vm.isLoading && _nameController.text.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // O Layout completo dentro de um Card, como no EditCollectPointFormPage
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
         child: Column(
           children: [
-            Row(children: [CustomVoltarTextButtom(pageToBack: HomeUserPage())]),
-            const SizedBox(height: 24),
-            Container(
-              height: 80,
-              width: 80,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF00C950), Color(0xFF2B7FFF)],
-                ),
-                borderRadius: BorderRadius.circular(60),
-              ),
-              child: const Icon(
-                Icons.person_2_rounded,
-                color: Colors.white,
-                size: 34,
-              ),
+            Row(
+              children: [
+                SizedBox(width: 24), // Espaço para alinhar o botão "Voltar"
+                CustomVoltarTextButtom(pageToBack: HomeUserPage()),
+              ],
             ),
-            const SizedBox(height: 24),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Color(0x20000000)),
+                  ),
+                  shadowColor: Colors.transparent,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              'Editar Perfil', // Título centralizado
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
 
-            // --- CORREÇÃO APLICADA AQUI ---
-            // 'initState' já chamou o load.
-            // O 'build' agora só LÊ o estado.
-            if (vm.isLoading && nameController.text.isEmpty)
-              const Expanded(child: Center(child: CircularProgressIndicator()))
-            // Se não estiver carregando (ou já tiver dados), mostra os cards
-            else
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildInfoCard(vm, vmRead),
-                      const SizedBox(height: 24),
-                      _buildActionsCard(vmRead),
-                    ],
+                          // --- Seus Campos de Formulário com o novo estilo ---
+                          _buildTextField(
+                            _nameController,
+                            'Nome Completo',
+                            TextInputType.text,
+                          ),
+                          _buildTextField(
+                            _emailController,
+                            'E-mail',
+                            TextInputType.emailAddress,
+                            readOnly: !_isEmailEditable,
+                          ),
+                          _buildTextField(
+                            _cpfController,
+                            'CPF',
+                            TextInputType.number,
+                            readOnly: true,
+                          ),
+                          _buildTextField(
+                            _countryController,
+                            'País',
+                            TextInputType.text,
+                          ),
+                          _buildTextField(
+                            _stateController,
+                            'Estado',
+                            TextInputType.text,
+                          ),
+                          _buildTextField(
+                            _cityController,
+                            'Cidade',
+                            TextInputType.text,
+                          ),
+                          SizedBox(height: 20),
+
+                          // --- Botões com o estilo do EditCollectPointFormPage ---
+
+                          // Botão "Sair da Conta" (estilo OutlinedButton, como "Cancelar")
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                final localContext = context;
+                                await vmRead
+                                    .signOut(); // Chamada para o seu método signOut do VM
+                                if (localContext.mounted) {
+                                  Navigator.of(localContext).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                      builder: (_) => const LoginPage(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                // Cores e estilo copiados do seu EditCollectPointFormPage
+                                foregroundColor: Colors.red,
+                                backgroundColor: Colors.white,
+                                minimumSize: const Size(0, 50),
+                                side: BorderSide(
+                                  color: Colors
+                                      .red
+                                      .shade300, // Borda vermelha clara
+                                  width: 1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Sair da Conta',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10.0),
+
+                          // Botão "Salvar Alterações" (estilo ElevatedButton)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                // Cores e estilo copiados do seu EditCollectPointFormPage
+                                backgroundColor: const Color(0xff00A63E),
+                                foregroundColor: Colors.white,
+                                disabledBackgroundColor: const Color(
+                                  0xff00A63E,
+                                ).withOpacity(0.7),
+                                disabledForegroundColor: Colors.white,
+                                minimumSize: const Size(0, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed:
+                                  vm
+                                      .isLoading // Desabilita se estiver carregando
+                                  ? null
+                                  : () async {
+                                      final localContext = context;
+
+                                      // Validação simples (seus campos não podem ser vazios)
+                                      if (_nameController.text.trim().isEmpty ||
+                                          _emailController.text
+                                              .trim()
+                                              .isEmpty ||
+                                          _cpfController.text.trim().isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Preencha todos os campos obrigatórios.',
+                                            ),
+                                            backgroundColor: Colors.orange,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      // Chamada para o seu método updateProfile do VM
+                                      final success = await vmRead
+                                          .updateProfile(
+                                            name: _nameController.text.trim(),
+                                            email: _emailController.text.trim(),
+                                            country: _countryController.text
+                                                .trim(),
+                                            state: _stateController.text.trim(),
+                                            city: _cityController.text.trim(),
+                                            cpf: _cpfController.text.trim(),
+                                          );
+
+                                      if (!localContext.mounted) return;
+
+                                      if (success) {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Perfil atualizado com sucesso!',
+                                            ),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          localContext,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              vm.errorMessage ??
+                                                  'Erro ao salvar alterações.',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                              child: vm.isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                  : const Text(
+                                      'Salvar Alterações',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
+            ),
+            SizedBox(height: 80),
           ],
         ),
       ),

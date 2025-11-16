@@ -171,6 +171,11 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Color(0x20000000)),
+                  ),
+                  shadowColor: Colors.transparent,
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
@@ -237,11 +242,11 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                             itemCount: vm.availableTrashTypes.length,
                             itemBuilder: (context, index) {
                               final type = vm.availableTrashTypes[index];
-      
+
                               // Use uma cor padrão (cinza) caso o tipo não esteja no mapa
                               final Color itemColor =
                                   coresLixo[type] ?? Colors.grey;
-      
+
                               return CustomCheckboxTile(
                                 title: type,
                                 color: itemColor,
@@ -316,9 +321,8 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                               onPressed: vm.isLoading
                                   ? null
                                   : () async {
-                                      final BuildContext localContext =
-                                          context;
-      
+                                      final BuildContext localContext = context;
+
                                       if (_nameController.text.isEmpty ||
                                           _selectedTrashTypes.isEmpty) {
                                         ScaffoldMessenger.of(
@@ -332,7 +336,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                         );
                                         return;
                                       }
-      
+
                                       final success = await vmRead
                                           .updatePointFromForm(
                                             name: _nameController.text.trim(),
@@ -340,8 +344,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                                 .trim(),
                                             country: _countryController.text
                                                 .trim(),
-                                            state: _stateController.text
-                                                .trim(),
+                                            state: _stateController.text.trim(),
                                             city: _cityController.text.trim(),
                                             street: _streetController.text
                                                 .trim(),
@@ -349,9 +352,9 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                                 .trim(),
                                             trashTypes: _selectedTrashTypes,
                                           );
-      
+
                                       if (!localContext.mounted) return;
-      
+
                                       if (success) {
                                         ScaffoldMessenger.of(
                                           localContext,
