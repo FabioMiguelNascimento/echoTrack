@@ -19,17 +19,23 @@ dependencies:
   shadcn_flutter: ^0.0.44
   shared_preferences: ^2.5.3
   floating_navbar: ^3.0.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/AppIcon/logo2.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+
 flutter:
   uses-material-design: true
   assets:
     - assets/images/logo.png
-    - assets/images/logo2.png
     - assets/images/vitor.jpg
     #   - images/a_dot_ham.jpeg
   
