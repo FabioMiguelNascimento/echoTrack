@@ -1,7 +1,9 @@
 // Libs
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/repositories/discart_repository.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/user/discart_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -45,6 +47,7 @@ class MainApp extends StatelessWidget {
         Provider<CollectPointRepository>(
           create: (_) => CollectPointRepository(),
         ),
+        Provider<DiscartRepository>(create: (_) => DiscartRepository()),
 
         // --- CAMADA 2: VIEWMODELS (ESTADO) ---
         // Eles dependem da Camada 1 e notificam a UI.
@@ -72,6 +75,13 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider<UserViewmodel>(
           create: (context) => UserViewmodel(
             context.read<UserRepository>(),
+            context.read<AuthRepository>(),
+          ),
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) => DiscartViewmodel(
+            context.read<DiscartRepository>(),
             context.read<AuthRepository>(),
           ),
         ),
