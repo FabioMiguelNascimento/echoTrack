@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -9,15 +11,24 @@ class MapWidget extends StatefulWidget {
 }
 
 class _MapWidgetState extends State<MapWidget> {
-  static const LatLng _initialLatLng = LatLng(-29.6391109131419, -50.78701746008162);
+  static const LatLng _initialLatLng = LatLng(
+    -29.6391109131419,
+    -50.78701746008162,
+  );
 
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: _initialLatLng,
-         zoom: 13
-      ),
+      initialCameraPosition: CameraPosition(target: _initialLatLng, zoom: 13),
+      scrollGesturesEnabled: true,
+      zoomGesturesEnabled: true,
+      zoomControlsEnabled: false,
+      myLocationButtonEnabled: false,
+      mapToolbarEnabled: false,
+
+      gestureRecognizers: {
+        Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+      },
     );
   }
 }
