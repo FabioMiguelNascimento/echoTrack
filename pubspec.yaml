@@ -35,7 +35,7 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/logo.png
-    - assets/images/vitor.jpg
+    - assets/images/AppIcon/logo2.png
+    - assets/images/logo2.png
     #   - images/a_dot_ham.jpeg
   

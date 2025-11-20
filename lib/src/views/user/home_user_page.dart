@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_map.dart';
 import 'package:g1_g2/components/custom_navbar.dart';
+import 'package:g1_g2/src/views/user/add_discart_form_page.dart';
 import 'package:g1_g2/src/views/user/profile_page.dart';
 
 class HomeContent extends StatelessWidget {
@@ -46,20 +47,31 @@ class HomeUserPage extends StatefulWidget {
 class _HomeUserPageState extends State<HomeUserPage> {
   @override
   Widget build(BuildContext context) {
-    return Navbar(
-      items: [
-        NavbarItem(icon: Icons.home, page: const HomeContent(), title: 'Casa'),
-        NavbarItem(
-          icon: Icons.person,
-          page: const ProfilePage(),
-          title: 'Perfil',
-        ),
-        NavbarItem(
-          icon: Icons.settings,
-          page: const SettingsPage(),
-          title: 'Configurações',
-        ),
-      ],
+    return SafeArea(
+      child: Navbar(
+        items: [
+          NavbarItem(
+            icon: Icons.home,
+            page: const HomeContent(),
+            title: 'Casa',
+          ),
+          NavbarItem(
+            icon: Icons.person,
+            page: const ProfilePage(),
+            title: 'Perfil',
+          ),
+          NavbarItem(
+            icon: Icons.settings,
+            page: const SettingsPage(),
+            title: 'Config',
+          ),
+          NavbarItem(
+            icon: Icons.add,
+            page: const AddDiscartFormPage(),
+            title: 'Descartar',
+          ),
+        ],
+      ),
     );
   }
 }
