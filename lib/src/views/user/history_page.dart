@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/models/discart_model.dart';
 import 'package:g1_g2/src/viewmodels/user/discart_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -43,16 +46,86 @@ class _HistoryPageState extends State<HistoryPage> {
     return status[0].toUpperCase() + status.substring(1);
   }
 
+  // Método para exibir o QrCode
+  void _showQrCodeDialog(BuildContext context, DiscartModel discart) {
+    // 1. Preparar os dados para o QR Code
+    // Podemos converter o objeto inteiro para JSON String, ou enviar apenas o ID.
+    // Aqui vou enviar um JSON com os dados principais para facilitar a leitura.
+    final Map<String, dynamic> dataMap = {
+      'id': discart.uid,
+      'user': discart.ownerUid,
+      'type': discart.trashType,
+      'qtd': discart.aproxQuantity,
+    };
+
+    final String qrData = jsonEncode(dataMap);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(
+            color: const Color.fromARGB(255, 161, 161, 161),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Código de Descarte',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+
+              // O WIDGET DO QR CODE
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              Text(
+                'ID: ${discart.uid}',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00A63E),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Fechar'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DiscartViewmodel>(
       builder: (context, vm, child) {
         return CustomInitialLayout(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 10.0,
-            ),
+          child: SafeArea(
             child: Column(
               children: [
                 // Cabeçalho
@@ -142,6 +215,13 @@ class _HistoryPageState extends State<HistoryPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+
+                IconButton(
+                  icon: const Icon(Icons.qr_code_2, color: Colors.black87),
+                  tooltip: 'Ver QR Code',
+                  onPressed: () => _showQrCodeDialog(context, discart),
+                ),
+
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
