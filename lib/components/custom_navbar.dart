@@ -20,22 +20,24 @@ class Navbar extends StatefulWidget {
 }
 
 class _NavbarState extends State<Navbar> {
-
   @override
   Widget build(BuildContext context) {
     return FloatingNavBar(
       resizeToAvoidBottomInset: false,
-      color: Colors.green,
+      color: Color(0xFF00A63E),
       selectedIconColor: Colors.white,
-      unselectedIconColor: Colors.white.withOpacity(0.6),
-      items: widget.items.map((item) => FloatingNavBarItem(
-        iconData: item.icon,
-        page: item.page,
-        title: item.title,
-      )).toList(),
+      unselectedIconColor: const Color.fromARGB(132, 255, 255, 255),
+      items: widget.items
+          .map(
+            (item) => FloatingNavBarItem(
+              iconData: item.icon,
+              page: item.page,
+              title: item.title,
+            ),
+          )
+          .toList(),
       horizontalPadding: 10.0,
       hapticFeedback: true,
-      showTitle: true,
       scrollPhysics: const NeverScrollableScrollPhysics(),
     );
   }
