@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
-import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/viewmodels/user/discart_viewmodel.dart';
 import 'package:g1_g2/src/views/user/home_user_page.dart';
 import 'package:provider/provider.dart';
@@ -76,12 +75,6 @@ class _AddDiscartFormPageState extends State<AddDiscartFormPage> {
         child: SafeArea(
           child: Column(
             children: [
-              Row(
-                children: [
-                  SizedBox(width: 24),
-                  CustomVoltarTextButtom(pageToBack: HomeUserPage()),
-                ],
-              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
