@@ -10,6 +10,8 @@ class DiscartViewmodel extends BaseViewModel {
 
   DiscartViewmodel(this._discartRepository, this._authRepository);
 
+  /* ----------------- FORMULÁRIO PARA REGISTRO DE DESCARTE ----------------- */
+
   // Controllers para o formulário
   // Form controllers
   final TextEditingController quantityController = TextEditingController();
@@ -87,4 +89,76 @@ class DiscartViewmodel extends BaseViewModel {
     quantityController.clear();
     observationController.clear();
   }
+
+  /* ------------------------------------------------------------------------ */
+
+  /* ---------- HISTÓRICO DE DESCARTES DO USUÁRIO --------------------------- */
+
+  // Lista de descartes
+  // Discarts list
+  List<DiscartModel> _userDiscarts = [];
+  List<DiscartModel> get userDiscarts => List.unmodifiable(_userDiscarts);
+
+  // Carregar os descartes do usuário
+  // load user discarts
+  Future<void> loadUserHistory() async {
+    setLoading(true);
+    try {
+      final user = _authRepository.currentUser;
+      if (user == null) {
+        throw Exception('Usuário não logado.');
+      }
+
+      final list = await _discartRepository.getDiscartsByUser(user.uid);
+
+      // Ordena a lista: se for 'pendente' vem antes (-1), se não, vai depois (1)
+      list.sort((a, b) {
+        final statusA = a.status.toLowerCase();
+        final statusB = b.status.toLowerCase();
+
+        if (statusA == 'pendente' && statusB != 'pendente') {
+          return -1; // 'a' vem primeiro
+        } else if (statusA != 'pendente' && statusB == 'pendente') {
+          return 1; // 'b' vem primeiro
+        } else {
+          return 0; // Mantém a ordem original entre eles
+        }
+      });
+
+      _userDiscarts = list;
+
+      notifyListeners();
+    } catch (e) {
+      setError(e.toString());
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Ação: Marcar como concluído
+  // Action: Set as finished
+  Future<void> completeDiscart(String uid) async {
+    await _updateDiscartStatus(uid, 'concluido');
+  }
+
+  // Ação: Marcar como cancelado
+  // Action: Set as canceled
+  Future<void> cancelDiscart(String uid) async {
+    await _updateDiscartStatus(uid, 'cancelado');
+  }
+
+  Future<void> _updateDiscartStatus(String uid, String status) async {
+    setLoading(true);
+    try {
+      await _discartRepository.updateStatus(uid, status);
+      await loadUserHistory(); // Recarrega a lista para exibir a mudança
+      notifyListeners();
+    } catch (e) {
+      setError('Erro ao atualizar o status: $e');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ------------------------------------------------------------------------ */
 }
