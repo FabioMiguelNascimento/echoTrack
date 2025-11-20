@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:g1_g2/components/custom_dashboard_card.dart'; // <-- Importe o card
+import 'package:g1_g2/components/custom_dashboard_card.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/views/admin/user_feedbacks_list_page.dart';
