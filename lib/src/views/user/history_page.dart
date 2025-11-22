@@ -129,7 +129,7 @@ class _HistoryPageState extends State<HistoryPage> {
             child: Column(
               children: [
                 // Cabeçalho
-                Row(children: [CustomVoltarTextButtom()]),
+                Row(children: [SizedBox(width: 15), CustomVoltarTextButtom()]),
                 const SizedBox(height: 24),
                 const Text(
                   'Meus Descartes',
