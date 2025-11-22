@@ -281,7 +281,7 @@ class _PointDetailsPageState extends State<PointDetailsPage> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.send, color: Color(0xFF00A63E)),
+                      : const Icon(Icons.send_rounded, color: Color(0xFF00A63E)),
                 ),
               ],
             ),
