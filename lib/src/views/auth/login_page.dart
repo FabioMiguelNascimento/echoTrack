@@ -15,6 +15,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool showPassword = true;
+
   @override
   Widget build(BuildContext context) {
     // 'watch' é ótimo para o 'build', pois reconstrói com 'isLoading'
@@ -107,24 +109,54 @@ class _LoginPageState extends State<LoginPage> {
                           width: double.infinity,
                           child: Text('Senha', style: TextStyle(fontSize: 17)),
                         ),
-                        TextField(
-                          controller: loginVM.passwordController,
-                          obscureText: true,
-                          cursorColor: Color(0xff00A63E),
-                          decoration: InputDecoration(
-                            hintText: 'Sua senha',
-                            filled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                width: 2,
-                                color: Color(0xff00A63E),
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: 270,
+                                child: TextField(
+                                  controller: loginVM.passwordController,
+                                  obscureText: showPassword,
+                                  cursorColor: Color(0xff00A63E),
+                                  decoration: InputDecoration(
+                                    hintText: 'Sua senha',
+                                    filled: true,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        width: 2,
+                                        color: Color(0xff00A63E),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                        style: BorderStyle.none,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(style: BorderStyle.none),
-                            ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (showPassword == false) {
+                                      showPassword = true;
+                                    } else {
+                                      showPassword = false;
+                                    }
+                                  });
+                                },
+                                icon: showPassword
+                                    ? Icon(
+                                        Icons.remove_red_eye_outlined,
+                                      ) // se falso (não mostra)
+                                    : Icon(
+                                        Icons.remove_red_eye,
+                                      ), // se verdadeiro (mostra)
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(height: 30),
@@ -156,7 +188,13 @@ class _LoginPageState extends State<LoginPage> {
                                       paginaDestino = WelcomeStorePage();
                                     } else if (usuario?.role == 'user') {
                                       // Se for Cliente...
-                                      paginaDestino = WelcomeUserPage(uid: FirebaseAuth.instance.currentUser!.uid, userType: usuario!.role);
+                                      paginaDestino = WelcomeUserPage(
+                                        uid: FirebaseAuth
+                                            .instance
+                                            .currentUser!
+                                            .uid,
+                                        userType: usuario!.role,
+                                      );
                                     } else {
                                       // Se for nulo ou desconhecido (não deve acontecer)
                                       ScaffoldMessenger.of(
