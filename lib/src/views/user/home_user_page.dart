@@ -14,26 +14,24 @@ class HomeUserPage extends StatefulWidget {
 class _HomeUserPageState extends State<HomeUserPage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Navbar(
-        items: [
-          NavbarItem(
-            icon: Icons.home,
-            page: const UserDashboardPage(),
-            title: 'Casa',
-          ),
-          NavbarItem(
-            icon: Icons.add_box_rounded,
-            page: const AddDiscartFormPage(),
-            title: 'Descartar',
-          ),
-          NavbarItem(
-            icon: Icons.card_giftcard_rounded,
-            page: const CouponsPage(),
-            title: 'Cupons',
-          ),
-        ],
-      ),
+    return Navbar(
+      items: [
+        NavbarItem(
+          icon: Icons.home_rounded,
+          page: const UserDashboardPage(),
+          title: 'Casa',
+        ),
+        NavbarItem(
+          icon: Icons.add_box_rounded,
+          page: const AddDiscartFormPage(),
+          title: 'Descartar',
+        ),
+        NavbarItem(
+          icon: Icons.card_giftcard_rounded,
+          page: const CouponsPage(),
+          title: 'Cupons',
+        ),
+      ],
     );
   }
 }

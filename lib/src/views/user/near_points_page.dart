@@ -26,10 +26,11 @@ class _NearPointsPageState extends State<NearPointsPage> {
 
   Widget _buildPointCard(PointCardData data) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
-      elevation: 1,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Color(0x20000000)),
+      ),
+      shadowColor: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(16.0),
         onTap: () {

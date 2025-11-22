@@ -35,32 +35,49 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
     return CustomInitialLayout(
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
+
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // --- 1. Cabeçalho ---
               _buildHeader(context, userName),
 
-              const SizedBox(height: 24),
-
-              // --- 3. Card de Próxima Coleta ---
-              _buildMapCard(),
-
-              const SizedBox(height: 24),
-
-              // --- 4. Grid de Ações Rápidas ---
-              const Text(
-                'Ações Rápidas',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
               const SizedBox(height: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // --- 3. Card de Próxima Coleta ---
+                        _buildMapCard(),
 
-              // Usando Wrap ou Column com Rows para o grid
-              _buildActionsGrid(context),
+                        const SizedBox(height: 24),
 
-              const SizedBox(height: 90),
+                        // --- 4. Grid de Ações Rápidas ---
+                        const Text(
+                          'Ações Rápidas',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Usando Wrap ou Column com Rows para o grid
+                        _buildActionsGrid(context),
+
+                        const SizedBox(height: 90),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -112,7 +129,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
               ).push(MaterialPageRoute(builder: (_) => const AboutPage()));
             }
           },
-          icon: const Icon(Icons.question_mark_rounded),
+          icon: const Icon(Icons.question_mark_rounded, size: 20),
           color: Colors.black87,
         ),
       ],
@@ -126,7 +143,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: const Color.fromARGB(75, 0, 0, 0),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -218,7 +235,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
           boxShadow: [
             if (!isOutlined) // Sombra suave apenas se for preenchido
               BoxShadow(
-                color: color.withOpacity(0.3),
+                color: const Color.fromARGB(75, 0, 0, 0),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),

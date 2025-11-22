@@ -192,8 +192,11 @@ class _HistoryPageState extends State<HistoryPage> {
     final statusColor = _getStatusColor(discart.status);
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Color(0x20000000)),
+      ),
+      shadowColor: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
