@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/models/feedback_model.dart';
 import 'package:g1_g2/src/viewmodels/admin/dtos/point_edit_data.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -155,21 +156,11 @@ class PontosViewmodel extends BaseViewModel {
         throw Exception('Dados do usuário não encontrados');
       }
 
-      // Se for admin, apenas permita a cidade do admin
-      // if (usuario.role == 'admin') {
-      //   final adminCity = usuario.city.trim().toLowerCase();
-      //   final newCity = createCityController.text.trim().toLowerCase();
-      //   if (adminCity.isEmpty || adminCity != newCity) {
-      //     throw Exception(
-      //       'Você só pode cadastrar pontos na sua cidade: ${usuario.city}',
-      //     );
-      //   }
-      // }
-
       CollectPointModel novoPonto = CollectPointModel(
         name: createNameController.text.trim(),
         address: Address(
           street: createStreetController.text.trim(),
+          neighborhood: createNeighborhoodController.text.trim(),
           city: createCityController.text.trim(),
           number: createNumberController.text.trim(),
           postal: createPostalController.text.trim(),
@@ -205,6 +196,7 @@ class PontosViewmodel extends BaseViewModel {
     required String state,
     required String city,
     required String street,
+    required String neighborhood,
     required String number,
     required List<String> trashTypes,
   }) async {
@@ -224,6 +216,7 @@ class PontosViewmodel extends BaseViewModel {
         name: name,
         address: Address(
           street: street,
+          neighborhood: neighborhood,
           city: city,
           number: number,
           postal: postal,
@@ -267,10 +260,6 @@ class PontosViewmodel extends BaseViewModel {
     }
   }
 
-  // --- 5. LIMPEZA ---
-
-  // (REMOVIDO o override do addListener)
-
   /// Sobrescreva o dispose para limpar SEUS controllers
   @override
   void dispose() {
@@ -283,5 +272,76 @@ class PontosViewmodel extends BaseViewModel {
     createStreetController.dispose();
     createNumberController.dispose();
     super.dispose();
+  }
+
+  // --- LÓGICA DE COMENTÁRIOS ---
+
+  List<FeedbackModel> _feedbacks = [];
+  List<FeedbackModel> get feedbacks => List.unmodifiable(_feedbacks);
+
+  final TextEditingController commentController = TextEditingController();
+
+  // Carrega comentários de um ponto específico
+  Future<void> loadFeedbacks(String pointId) async {
+    // Nota: Não usamos setLoading(true) aqui para não bloquear a tela toda
+    // se você quiser um loading só na lista, crie um bool _isLoadingFeedbacks separado.
+    try {
+      _feedbacks = await _repository.getFeedbacks(pointId);
+      notifyListeners();
+    } catch (e) {
+      setError('Erro ao carregar feedbacks: $e');
+    }
+  }
+
+  // Deleta comentário
+  Future<void> delFeedbackVM(
+    String userId,
+    String pointId,
+    FeedbackModel feedback,
+  ) async {
+    setLoading(true);
+    try {
+      await _repository.delFeedback(userId, pointId, feedback.id);
+      await loadFeedbacks(pointId);
+    } catch (e) {
+      setError('Erro ao deletar comentário: $e');
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  // Envia o comentário
+  Future<bool> sendFeedback(
+    String pointId,
+    String userId,
+    String userName,
+  ) async {
+    final text = commentController.text.trim();
+    if (text.isEmpty) return false;
+
+    setLoading(true); // Aqui bloqueamos rapidinho para enviar
+    try {
+      final feedback = FeedbackModel(
+        id: '', // O Firebase gera
+        userId: userId,
+        userName: userName,
+        comment: text,
+        date: DateTime.now(),
+      );
+
+      await _repository.addFeedback(pointId, feedback);
+
+      commentController.clear(); // Limpa o input
+      await loadFeedbacks(pointId); // Recarrega a lista
+
+      return true;
+    } catch (e) {
+      setError('Erro ao comentar: $e');
+      return false;
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
   }
 }

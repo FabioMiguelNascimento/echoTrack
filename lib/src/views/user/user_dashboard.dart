@@ -5,7 +5,7 @@ import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
 import 'package:g1_g2/src/views/user/history_page.dart';
 import 'package:g1_g2/src/views/user/near_points_page.dart';
 import 'package:g1_g2/src/views/user/profile_page.dart';
-import 'package:g1_g2/src/views/user/settings_page.dart';
+import 'package:g1_g2/src/views/user/about_page.dart';
 import 'package:provider/provider.dart';
 
 class UserDashboardPage extends StatefulWidget {
@@ -109,7 +109,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
             if (context.mounted) {
               Navigator.of(
                 context,
-              ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
+              ).push(MaterialPageRoute(builder: (_) => const AboutPage()));
             }
           },
           icon: const Icon(Icons.settings_rounded),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/repositories/auth_repository.dart'; // Mantido para signOut
 import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
 import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:g1_g2/src/views/user/home_user_page.dart';
@@ -15,7 +13,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Seus controllers locais (mantidos como você os tem)
+  // Seus controllers locais
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _countryController;
@@ -40,7 +38,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _cpfController = TextEditingController();
 
     // Agenda o carregamento de dados para DEPOIS do primeiro build.
-    // Esta lógica de carregamento é a que você pediu para manter.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       vm.loadCurrentUser().then((success) {
         if (success && mounted) {
@@ -59,8 +56,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           );
-          // Opcional: navegar para trás se o carregamento falhou criticamente
-          // Navigator.pop(context);
+          // navegar para trás se o carregamento falhou criticamente
+          Navigator.pop(context);
         }
       });
     });
@@ -87,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  // --- NOVO: _buildTextField com o estilo do EditCollectPointFormPage ---
+  // _buildTextField com o estilo do EditCollectPointFormPage ---
   Widget _buildTextField(
     TextEditingController controller,
     String label,
@@ -99,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Inclui o label acima do TextField, como no seu exemplo
+          // Inclui o label acima do TextField
           Text(
             '${label.split(' ')[0]}:', // Pega a primeira palavra do label para título (e-mail, nome, etc)
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -112,7 +109,6 @@ class _ProfilePageState extends State<ProfilePage> {
             decoration: InputDecoration(
               hintText: label, // O hintText será o label completo
               filled: true,
-              // Cores e bordas copiadas do seu EditCollectPointFormPage
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(width: 2, color: Color(0xff00A63E)),
@@ -144,7 +140,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // --- NOVO: Build com o layout completo do EditCollectPointFormPage ---
   @override
   Widget build(BuildContext context) {
     final vm = context
@@ -204,7 +199,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           SizedBox(height: 20),
 
-                          // --- Seus Campos de Formulário com o novo estilo ---
                           _buildTextField(
                             _nameController,
                             'Nome Completo',
@@ -259,7 +253,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 }
                               },
                               style: OutlinedButton.styleFrom(
-                                // Cores e estilo copiados do seu EditCollectPointFormPage
                                 foregroundColor: Colors.red,
                                 backgroundColor: Colors.white,
                                 minimumSize: const Size(0, 50),
@@ -289,12 +282,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                // Cores e estilo copiados do seu EditCollectPointFormPage
                                 backgroundColor: const Color(0xff00A63E),
                                 foregroundColor: Colors.white,
-                                disabledBackgroundColor: const Color(
-                                  0xff00A63E,
-                                ).withOpacity(0.7),
+                                disabledBackgroundColor: const Color.fromARGB(158, 0, 166, 61),
                                 disabledForegroundColor: Colors.white,
                                 minimumSize: const Size(0, 50),
                                 shape: RoundedRectangleBorder(
@@ -308,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   : () async {
                                       final localContext = context;
 
-                                      // Validação simples (seus campos não podem ser vazios)
+                                      // Validação simples (campos não podem ser vazios)
                                       if (_nameController.text.trim().isEmpty ||
                                           _emailController.text
                                               .trim()
@@ -327,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         return;
                                       }
 
-                                      // Chamada para o seu método updateProfile do VM
+                                      // Chamada para o método updateProfile do VM
                                       final success = await vmRead
                                           .updateProfile(
                                             name: _nameController.text.trim(),

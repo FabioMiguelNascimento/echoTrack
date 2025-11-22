@@ -21,6 +21,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
   late TextEditingController _countryController;
   late TextEditingController _stateController;
   late TextEditingController _cityController;
+  late TextEditingController _neighborhoodController;
   late TextEditingController _streetController;
   late TextEditingController _numberController;
   late List<String> _selectedTrashTypes;
@@ -54,6 +55,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
       _countryController = TextEditingController();
       _stateController = TextEditingController();
       _cityController = TextEditingController();
+      _neighborhoodController = TextEditingController();
       _streetController = TextEditingController();
       _numberController = TextEditingController();
       _selectedTrashTypes = [];
@@ -64,6 +66,9 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
     _countryController = TextEditingController(text: model.address.country);
     _stateController = TextEditingController(text: model.address.state);
     _cityController = TextEditingController(text: model.address.city);
+    _neighborhoodController = TextEditingController(
+      text: model.address.neighborhood,
+    );
     _streetController = TextEditingController(text: model.address.street);
     _numberController = TextEditingController(text: model.address.number);
     _selectedTrashTypes = List<String>.from(model.trashTypes);
@@ -346,6 +351,9 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                                 .trim(),
                                             state: _stateController.text.trim(),
                                             city: _cityController.text.trim(),
+                                            neighborhood:
+                                                _neighborhoodController.text
+                                                    .trim(),
                                             street: _streetController.text
                                                 .trim(),
                                             number: _numberController.text

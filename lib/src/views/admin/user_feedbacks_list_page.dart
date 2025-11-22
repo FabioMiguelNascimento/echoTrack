@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/models/feedback_model.dart'; // Verificar e remover
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 // -----------------------------------------------------------------
 // 1. INÍCIO DO CÓDIGO DA PÁGINA (FeedbackListPage)
 // -----------------------------------------------------------------
 
-class UserFeedbacksListPage extends StatelessWidget {
-  const UserFeedbacksListPage({super.key});
+class UserFeedbacksListPage extends StatefulWidget {
+  final String pointId;
 
-  // --- Dados Estáticos para a Lista ---
-  // (Baseado na sua imagem)
-  static final List<Map<String, String>> feedbacksEstaticos = [
-    {'nome': 'Douglas', 'feedback': 'Impressora não está funcionando'},
-    {'nome': 'Douglas', 'feedback': 'Impressora foi roubada'},
-    {
-      'nome': 'Ana Clara',
-      'feedback': 'Ponto de coleta está sempre cheio, sem espaço.',
-    },
-    {'nome': 'Marcos', 'feedback': 'Não consegui ler o QR Code da máquina.'},
-  ];
+  const UserFeedbacksListPage({super.key, required this.pointId});
+
+  @override
+  State<UserFeedbacksListPage> createState() => _UserFeedbacksListPageState();
+}
+
+class _UserFeedbacksListPageState extends State<UserFeedbacksListPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Carrega os detalhes do ponto
+      context.read<PontosViewmodel>().selectPoint(widget.pointId);
+
+      // Carrega os comntários
+      context.read<PontosViewmodel>().loadFeedbacks(widget.pointId);
+    });
+  }
 
   // --- Helper Widget para o Card de Feedback ---
-  Widget _buildFeedbackCard(Map<String, String> feedback) {
+  Widget _buildFeedbackCard(FeedbackModel feedback) {
     // Cor verde principal do seu app
     const Color corNome = Color(0xff00A63E);
 
@@ -28,30 +38,29 @@ class UserFeedbacksListPage extends StatelessWidget {
       // Espaçamento entre os cards
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Card(
-        elevation: 0, // Sem sombra, como na imagem
-        shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          // Borda sutil, opcional (imagem parece ter uma)
-          // side: BorderSide(color: Color(0x20000000)),
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Color(0x20000000)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
+        shadowColor: Colors.transparent,
+        margin: const EdgeInsets.only(bottom: 10),
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.grey.shade200,
+            child: Text(feedback.userName[0].toUpperCase()),
+          ),
+          title: Text(
+            feedback.userName,
+            style: const TextStyle(fontWeight: FontWeight.bold, color: corNome),
+          ),
+          subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(feedback.comment),
+              const SizedBox(height: 4),
               Text(
-                feedback['nome']!,
-                style: const TextStyle(
-                  color: corNome,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                feedback['feedback']!,
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
+                "${feedback.date.day}/${feedback.date.month}/${feedback.date.year}",
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -62,6 +71,8 @@ class UserFeedbacksListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vmPoints = context.watch<PontosViewmodel>();
+
     return Scaffold(
       // Fundo em gradiente, igual ao da outra tela
       body: Container(
@@ -132,9 +143,10 @@ class UserFeedbacksListPage extends StatelessWidget {
                 child: ListView.builder(
                   // Padding para a lista não colar nas bordas
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  itemCount: feedbacksEstaticos.length,
+                  itemCount: vmPoints.feedbacks.length,
                   itemBuilder: (context, index) {
-                    return _buildFeedbackCard(feedbacksEstaticos[index]);
+                    final feedback = vmPoints.feedbacks[index];
+                    return _buildFeedbackCard(feedback);
                   },
                 ),
               ),

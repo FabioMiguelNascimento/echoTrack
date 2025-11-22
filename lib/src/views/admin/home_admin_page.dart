@@ -39,7 +39,9 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
           context.read<PontosViewmodel>().selectPoint(data.id);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PointOptionsPage()),
+            MaterialPageRoute(
+              builder: (context) => PointOptionsPage(pointId: data.id),
+            ),
           );
         },
         child: Padding(

@@ -8,7 +8,8 @@ import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/edit_collect_point_form_page.dart';
 
 class PointOptionsPage extends StatefulWidget {
-  const PointOptionsPage({super.key});
+  final String pointId;
+  const PointOptionsPage({super.key, required this.pointId});
 
   @override
   State<PointOptionsPage> createState() => _PointOptionsPageState();
@@ -16,8 +17,19 @@ class PointOptionsPage extends StatefulWidget {
 
 class _PointOptionsPageState extends State<PointOptionsPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PontosViewmodel>().selectPoint(widget.pointId);
+      context.read<PontosViewmodel>().loadFeedbacks(widget.pointId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final point = context.watch<PontosViewmodel>().selectedPoint;
+    final vmPoints = context.watch<PontosViewmodel>();
+
+    final point = vmPoints.selectedPoint;
 
     // 2. Se nenhum ponto estiver selecionado (erro), volta.
     if (point == null) {
@@ -46,23 +58,77 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
 
             // Subtítulo
             const Text(
-              'Verifique a condição e status do ponto de coleta',
+              'Verifique a condição do ponto de coleta',
               style: TextStyle(fontSize: 16, color: Color(0xFF717182)),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Color(0x20000000)),
+              ),
+              shadowColor: Colors.transparent,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Endereço",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text("${point.address.street}, ${point.address.number}"),
+                    Text(
+                      "${point.address.neighborhood} - ${point.address.city}/${point.address.state}",
+                    ),
+                    Text("CEP: ${point.address.postal}"),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Tipos aceitos:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      children: point.trashTypes
+                          .map(
+                            (type) => Chip(
+                              label: Text(
+                                type,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              backgroundColor: const Color(0xFF00A63E),
+                              padding: EdgeInsets.zero,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
 
             // Card 1 (Verde)
             CustomDashboardCard(
               color: const Color(0xFF00A63E), // Verde
               icon: Icons.people_outline_rounded,
               title: 'O que a população diz',
-              subtitle: '0 - Observações',
+              subtitle: '${vmPoints.feedbacks.length} - Comentários',
               onTap: () async {
                 // Navega para a tela de edição e aguarda resultado
                 await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
-                    builder: (context) => UserFeedbacksListPage(),
+                    builder: (context) =>
+                        UserFeedbacksListPage(pointId: point.id!),
                   ),
                 );
               },

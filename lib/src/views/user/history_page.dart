@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/models/discart_model.dart';
+import 'package:g1_g2/src/models/discart_model.dart'; // Verificar e remover
 import 'package:g1_g2/src/viewmodels/user/discart_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';

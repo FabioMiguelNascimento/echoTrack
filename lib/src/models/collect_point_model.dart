@@ -50,6 +50,7 @@ class Cords {
 
 class Address {
   final String street;
+  final String neighborhood;
   final String city;
   final String number;
   final String postal;
@@ -59,6 +60,7 @@ class Address {
 
   Address({
     required this.street,
+    required this.neighborhood,
     required this.city,
     required this.number,
     required this.postal,
@@ -70,6 +72,7 @@ class Address {
   factory Address.fromJSON(Map<String, dynamic> json) {
     return Address(
       street: json['street'],
+      neighborhood: json['neighborhood'],
       city: json['city'],
       number: json['number'],
       postal: json['postal'],
@@ -85,6 +88,7 @@ class Address {
   Map<String, dynamic> toJSON() {
     return {
       'street': street,
+      'neighborhood': neighborhood,
       'city': city,
       'number': number,
       'postal': postal,

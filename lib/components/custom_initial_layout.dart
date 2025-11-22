@@ -18,12 +18,7 @@ class CustomInitialLayout extends StatelessWidget {
         ),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 12.0, left: 12.0),
-            child: child,
-          ),
-        ),
+        child: SafeArea(child: child),
       ),
     );
   }
