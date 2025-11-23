@@ -55,14 +55,11 @@ class CustomCheckboxTile extends StatelessWidget {
                 ),
               ),
 
-              // 3. A Checkbox customizada
-              Checkbox(
-                value: value,
-                onChanged: onChanged,
-                // Arredonda os cantos da checkbox
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
+              // 3. A Radio customizada
+              Radio<bool>(
+                value: true,
+                groupValue: value ? true : null,
+                onChanged: null,
                 // Define a cor de fundo quando está marcada
                 activeColor: Colors.blue, // Ou a cor que preferir
               ),
@@ -72,4 +69,4 @@ class CustomCheckboxTile extends StatelessWidget {
       ),
     );
   }
-}
+} 
