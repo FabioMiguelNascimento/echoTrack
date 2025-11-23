@@ -4,6 +4,7 @@ class CollectPointModel {
   final Address address;
   final bool isActive;
   final List<String> trashTypes;
+  final String qrCodeId; // ID único para o QR Code do ponto
 
   CollectPointModel({
     this.id,
@@ -11,6 +12,7 @@ class CollectPointModel {
     required this.address,
     required this.isActive,
     required this.trashTypes,
+    required this.qrCodeId,
   });
 
   factory CollectPointModel.fromJSON(Map<String, dynamic> json, {String? id}) {
@@ -20,6 +22,7 @@ class CollectPointModel {
       address: Address.fromJSON(json['address']),
       isActive: json['isActive'],
       trashTypes: List<String>.from(json['trashTypes'] ?? []),
+      qrCodeId: json['qrCodeId'] ?? '',
     );
   }
 
@@ -29,6 +32,7 @@ class CollectPointModel {
       'address': address.toJSON(),
       'isActive': isActive,
       'trashTypes': trashTypes,
+      'qrCodeId': qrCodeId,
     };
   }
 }

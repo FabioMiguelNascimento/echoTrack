@@ -1,13 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/models/feedback_model.dart';
+import 'package:g1_g2/src/repositories/collect_point_repository.dart';
+import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
 import 'package:g1_g2/src/viewmodels/admin/dtos/point_edit_data.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:g1_g2/src/repositories/user_repository.dart';
-import 'package:g1_g2/src/repositories/collect_point_repository.dart';
-import 'package:g1_g2/src/models/collect_point_model.dart';
-
-import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:uuid/uuid.dart';
 
 class PontosViewmodel extends BaseViewModel {
   final CollectPointRepository _repository;
@@ -16,6 +17,9 @@ class PontosViewmodel extends BaseViewModel {
   PontosViewmodel(this._repository, this._userRepository);
 
   List<CollectPointModel> _points = [];
+  
+  List<CollectPointModel> get allPoints => _points;
+  
   List<PointCardData> get pointCards {
     return _points
         .where((p) => p.id != null) // Garante que não há pontos sem ID
@@ -156,6 +160,26 @@ class PontosViewmodel extends BaseViewModel {
         throw Exception('Dados do usuário não encontrados');
       }
 
+      Position? currentPosition;
+      try {
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        
+        if (permission != LocationPermission.denied && 
+            permission != LocationPermission.deniedForever) {
+          currentPosition = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          );
+        }
+      } catch (e) {
+        print('Erro ao capturar localização: $e');
+      }
+
+      final uuid = Uuid();
+      final qrCodeId = uuid.v4();
+
       CollectPointModel novoPonto = CollectPointModel(
         name: createNameController.text.trim(),
         address: Address(
@@ -166,9 +190,16 @@ class PontosViewmodel extends BaseViewModel {
           postal: createPostalController.text.trim(),
           country: createCountryController.text.trim(),
           state: createStateController.text.trim(),
+          cords: currentPosition != null
+              ? Cords(
+                  lat: currentPosition.latitude.toString(),
+                  lon: currentPosition.longitude.toString(),
+                )
+              : null,
         ),
         isActive: true,
         trashTypes: createSelectedTrashTypes,
+        qrCodeId: qrCodeId,
       );
 
       // Salvar no repositório
@@ -226,6 +257,7 @@ class PontosViewmodel extends BaseViewModel {
         ),
         isActive: _selectedPoint!.isActive, // Mantém status original
         trashTypes: trashTypes,
+        qrCodeId: _selectedPoint!.qrCodeId,
       );
 
       // (Use seu método de repository existente)

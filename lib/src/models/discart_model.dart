@@ -5,6 +5,8 @@ class DiscartModel {
   final String trashType;
   final String aproxQuantity;
   final String observations;
+  final String collectPointId;
+  final String collectPointName;
 
   DiscartModel({
     required this.uid,
@@ -13,6 +15,8 @@ class DiscartModel {
     required this.trashType,
     required this.aproxQuantity,
     required this.observations,
+    required this.collectPointId,
+    required this.collectPointName,
   });
 
   factory DiscartModel.fromJson(Map<String, dynamic> json, {String? uid}) {
@@ -23,6 +27,8 @@ class DiscartModel {
       trashType: json['trashType'],
       aproxQuantity: json['aproxQuantity'],
       observations: json['observations'],
+      collectPointId: json['collectPointId'] ?? '',
+      collectPointName: json['collectPointName'] ?? '',
     );
   }
 
@@ -33,6 +39,8 @@ class DiscartModel {
       'trashType': trashType,
       'aproxQuantity': aproxQuantity,
       'observations': observations,
+      'collectPointId': collectPointId,
+      'collectPointName': collectPointName,
     };
   }
 }

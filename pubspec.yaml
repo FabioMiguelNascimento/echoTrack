@@ -21,6 +21,9 @@ dependencies:
   floating_navbar: ^3.0.0
   flutter_launcher_icons: ^0.14.4
   qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
+  geolocator: ^13.0.2
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:

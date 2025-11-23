@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/src/viewmodels/user/discart_viewmodel.dart';
 import 'package:g1_g2/src/views/user/home_user_page.dart';
+import 'package:g1_g2/src/views/user/qr_code_scanner_page.dart';
 import 'package:provider/provider.dart';
 
 class AddDiscartFormPage extends StatefulWidget {
@@ -105,6 +106,133 @@ class _AddDiscartFormPageState extends State<AddDiscartFormPage> {
                               ),
                             ),
                             SizedBox(height: 20),
+                            
+                            if (vm.scannedCollectPointId != null)
+                              Card(
+                                color: Color(0xffF0FDF4),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: Color(0xff00A63E)),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Color(0xff00A63E),
+                                        size: 32,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Ponto Identificado',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xff00A63E),
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              vm.scannedCollectPointName ?? '',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.qr_code_scanner, color: Color(0xff00A63E)),
+                                        tooltip: 'Escanear outro ponto',
+                                        onPressed: () async {
+                                          final result = await Navigator.push<Map<String, dynamic>>(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const QrCodeScannerPage(),
+                                            ),
+                                          );
+                                          if (result != null && context.mounted) {
+                                            vmRead.setScannedPoint(
+                                              result['pointId'],
+                                              result['pointName'],
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else
+                              // Botão para escanear QR Code
+                              Card(
+                                color: Color(0xffFEF3C7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: Color(0xffF59E0B)),
+                                ),
+                                child: InkWell(
+                                  onTap: () async {
+                                    final result = await Navigator.push<Map<String, dynamic>>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const QrCodeScannerPage(),
+                                      ),
+                                    );
+                                    if (result != null && context.mounted) {
+                                      vmRead.setScannedPoint(
+                                        result['pointId'],
+                                        result['pointName'],
+                                      );
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.qr_code_scanner,
+                                          color: Color(0xffF59E0B),
+                                          size: 32,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Escanear QR Code',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xffF59E0B),
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                'Toque para identificar o ponto de coleta',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Color(0xffD97706),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Color(0xffF59E0B),
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 20),
+                            
                             Text('Qunatidade Aproximada'),
                             _buildTextField(
                               vm.quantityController,
@@ -152,6 +280,8 @@ class _AddDiscartFormPageState extends State<AddDiscartFormPage> {
                               width: double.infinity,
                               child: OutlinedButton(
                                 onPressed: () {
+                                  // Limpa o formulário incluindo o ponto escaneado
+                                  vmRead.clearForm();
                                   Navigator.of(context).pushAndRemoveUntil(
                                     MaterialPageRoute(
                                       builder: (_) => const HomeUserPage(),

@@ -17,6 +17,15 @@ class DiscartViewmodel extends BaseViewModel {
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController observationController = TextEditingController();
 
+  String? scannedCollectPointId;
+  String? scannedCollectPointName;
+
+  void setScannedPoint(String pointId, String pointName) {
+    scannedCollectPointId = pointId;
+    scannedCollectPointName = pointName;
+    notifyListeners();
+  }
+
   // Método para registrar o descarte
   // Register discart method
   Future<bool> registerDiscart() async {
@@ -26,6 +35,10 @@ class DiscartViewmodel extends BaseViewModel {
       // Basic validation
       if (selectedTrashType.isEmpty || quantityController.text.isEmpty) {
         throw Exception('Selecione o tipo de lixo e a quantidade aproximada.');
+      }
+
+      if (scannedCollectPointId == null || scannedCollectPointName == null) {
+        throw Exception('Você precisa escanear o QR Code do ponto de coleta.');
       }
 
       // get logged user
@@ -42,6 +55,8 @@ class DiscartViewmodel extends BaseViewModel {
         trashType: selectedTrashType.trim(),
         aproxQuantity: quantityController.text.trim(),
         observations: observationController.text.trim(),
+        collectPointId: scannedCollectPointId!,
+        collectPointName: scannedCollectPointName!,
       );
 
       // send to repository
@@ -88,6 +103,8 @@ class DiscartViewmodel extends BaseViewModel {
     selectedTrashType = '';
     quantityController.clear();
     observationController.clear();
+    scannedCollectPointId = null;
+    scannedCollectPointName = null;
   }
 
   /* ------------------------------------------------------------------------ */

@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class AddCollectPointFormPage extends StatefulWidget {
@@ -150,6 +150,30 @@ class _AddCollectPointFormPageState extends State<AddCollectPointFormPage> {
                                 'Cadastrar ponto de coleta',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Container(
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Color(0xffE0F2FE),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Color(0xff0EA5E9)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.location_on, color: Color(0xff0EA5E9), size: 20),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'A localização GPS será capturada automaticamente',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xff0369A1),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             SizedBox(height: 20),

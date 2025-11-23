@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_dashboard_card.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
-import 'package:g1_g2/src/views/admin/user_feedbacks_list_page.dart';
-import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/edit_collect_point_form_page.dart';
+import 'package:g1_g2/src/views/admin/point_qrcode_page.dart';
+import 'package:g1_g2/src/views/admin/user_feedbacks_list_page.dart';
+import 'package:provider/provider.dart';
 
 class PointOptionsPage extends StatefulWidget {
   final String pointId;
@@ -120,6 +121,22 @@ class _PointOptionsPageState extends State<PointOptionsPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
+
+                    CustomDashboardCard(
+                      color: const Color(0xFF7C3AED),
+                      icon: Icons.qr_code_2_rounded,
+                      title: 'QR Code do Ponto',
+                      subtitle: 'Visualizar e imprimir código de identificação',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => PointQrCodePage(point: point),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
 
                     // Card 1 (Verde)
                     CustomDashboardCard(
