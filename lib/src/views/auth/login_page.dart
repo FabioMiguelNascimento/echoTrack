@@ -4,6 +4,8 @@ import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
 import 'package:g1_g2/src/views/admin/welcome_admin_page.dart';
 import 'package:g1_g2/src/views/auth/cadastro_page.dart';
 import 'package:g1_g2/src/views/store/welcome_store_page.dart';
+import 'package:g1_g2/src/views/store/store_dashboard_page.dart';
+import 'package:g1_g2/src/repositories/store_repository.dart';
 import 'package:g1_g2/src/views/user/welcome_user_page.dart';
 import 'package:provider/provider.dart';
 
@@ -183,9 +185,16 @@ class _LoginPageState extends State<LoginPage> {
                                     if (usuario?.role == 'admin') {
                                       // Se o usuário for Admin...
                                       paginaDestino = WelcomeAdminPage();
-                                    } else if (usuario?.role == 'store') {
-                                      // Se for Loja...
-                                      paginaDestino = WelcomeStorePage();
+                                    } else if (usuario?.role == 'store' || usuario?.role == 'loja') {
+                                      // Se for Loja... verificar se já tem loja cadastrada
+                                      final storeRepo = context.read<StoreRepository>();
+                                      final uid = FirebaseAuth.instance.currentUser!.uid;
+                                      final store = await storeRepo.getStoreById(uid);
+                                      if (store != null) {
+                                        paginaDestino = StoreDashboardPage();
+                                      } else {
+                                        paginaDestino = WelcomeStorePage();
+                                      }
                                     } else if (usuario?.role == 'user') {
                                       // Se for Cliente...
                                       paginaDestino = WelcomeUserPage(

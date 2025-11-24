@@ -55,4 +55,22 @@ class UserRepository {
       print('-------------------------------');
     }
   }
+
+  /// Incrementa a contagem de coletas do usuário e retorna o novo valor.
+  Future<int> incrementCollections(String uid, int incrementBy) async {
+    final ref = _db.collection(_collectionPath).doc(uid);
+    return _db.runTransaction<int>((tx) async {
+      final snapshot = await tx.get(ref);
+      if (!snapshot.exists) {
+        // Se não existe, cria com valor inicial
+        tx.set(ref, {'collectionsCount': incrementBy}, SetOptions(merge: true));
+        return incrementBy;
+      }
+      final data = snapshot.data() as Map<String, dynamic>;
+      final current = (data['collectionsCount'] ?? 0) as int;
+      final next = current + incrementBy;
+      tx.update(ref, {'collectionsCount': next});
+      return next;
+    });
+  }
 }
