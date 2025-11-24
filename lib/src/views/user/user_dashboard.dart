@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_map.dart';
+import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
+import 'package:g1_g2/src/views/extras/about_page.dart';
 import 'package:g1_g2/src/views/user/history_page.dart';
 import 'package:g1_g2/src/views/user/near_points_page.dart';
 import 'package:g1_g2/src/views/user/profile_page.dart';
-import 'package:g1_g2/src/views/extras/about_page.dart';
 import 'package:provider/provider.dart';
 
 class UserDashboardPage extends StatefulWidget {
@@ -22,6 +23,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     // Garante que os dados do usuário estejam carregados ao abrir a dashboard
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserViewmodel>().loadCurrentUser();
+      context.read<PontosViewmodel>().loadCollectPoints();
     });
   }
 
@@ -137,6 +139,8 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
   }
 
   Widget _buildMapCard() {
+    final pontosVm = context.watch<PontosViewmodel>();
+    
     return Container(
       height: 440, // Altura definida para o mapa
       decoration: BoxDecoration(
@@ -154,8 +158,126 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
         borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
-            // O MAPA
-            MapWidget(),
+            MapWidget(
+              collectPoints: pontosVm.allPoints.where((p) => p.isActive).toList(),
+              onMarkerTap: (point) {
+                _showPointDetails(context, point);
+              },
+            ),
+            
+            if (pontosVm.allPoints.isNotEmpty)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Color(0xff00A63E),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.location_on, color: Colors.white, size: 16),
+                      SizedBox(width: 4),
+                      Text(
+                        '${pontosVm.allPoints.where((p) => p.isActive).length} pontos',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPointDetails(BuildContext context, point) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_on, color: Color(0xff00A63E), size: 32),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    point.name,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff00A63E),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Endereço:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            Text('${point.address.street}, ${point.address.number}'),
+            Text('${point.address.neighborhood} - ${point.address.city}'),
+            SizedBox(height: 12),
+            Text(
+              'Tipos de lixo aceitos:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: point.trashTypes.map<Widget>((type) {
+                return Chip(
+                  label: Text(type),
+                  backgroundColor: Color(0xffF0FDF4),
+                  labelStyle: TextStyle(
+                    color: Color(0xff00A63E),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.close),
+                label: Text('Fechar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff00A63E),
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
