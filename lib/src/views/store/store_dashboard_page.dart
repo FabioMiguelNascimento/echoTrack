@@ -22,8 +22,6 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
   final _minCollectionsCtrl = TextEditingController();
   final _quantityCtrl = TextEditingController();
 
-
-
   @override
   void dispose() {
     _titleCtrl.dispose();
@@ -34,13 +32,15 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
     _quantityCtrl.dispose();
     super.dispose();
   }
-  
+
   Future<void> _showEditStoreDialog() async {
     final viewModel = context.read<StoreViewModel>();
     final store = viewModel.store;
-    
+
     if (store == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja não encontrada')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Loja não encontrada')));
       return;
     }
 
@@ -48,7 +48,9 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
     final cnpjCtrl = TextEditingController(text: store.cnpj);
     final streetCtrl = TextEditingController(text: store.street ?? '');
     final numberCtrl = TextEditingController(text: store.number ?? '');
-    final neighborhoodCtrl = TextEditingController(text: store.neighborhood ?? '');
+    final neighborhoodCtrl = TextEditingController(
+      text: store.neighborhood ?? '',
+    );
     final cityCtrl = TextEditingController(text: store.city);
     final stateCtrl = TextEditingController(text: store.state);
 
@@ -61,17 +63,35 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nome')),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: cnpjCtrl, decoration: const InputDecoration(labelText: 'CNPJ')),
+                TextField(
+                  controller: cnpjCtrl,
+                  decoration: const InputDecoration(labelText: 'CNPJ'),
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: streetCtrl, decoration: const InputDecoration(labelText: 'Rua')),
+                TextField(
+                  controller: streetCtrl,
+                  decoration: const InputDecoration(labelText: 'Rua'),
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: numberCtrl, decoration: const InputDecoration(labelText: 'Número')),
+                TextField(
+                  controller: numberCtrl,
+                  decoration: const InputDecoration(labelText: 'Número'),
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: neighborhoodCtrl, decoration: const InputDecoration(labelText: 'Bairro')),
+                TextField(
+                  controller: neighborhoodCtrl,
+                  decoration: const InputDecoration(labelText: 'Bairro'),
+                ),
                 const SizedBox(height: 8),
-                TextField(controller: cityCtrl, decoration: const InputDecoration(labelText: 'Cidade')),
+                TextField(
+                  controller: cityCtrl,
+                  decoration: const InputDecoration(labelText: 'Cidade'),
+                ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: stateCtrl,
@@ -83,8 +103,14 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
-            ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Salvar')),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Salvar'),
+            ),
           ],
         );
       },
@@ -98,7 +124,8 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
         country: store.country,
         state: stateCtrl.text.trim(),
         city: cityCtrl.text.trim(),
-        address: '${streetCtrl.text.trim()}, ${numberCtrl.text.trim()}, ${neighborhoodCtrl.text.trim()}, ${cityCtrl.text.trim()} - ${stateCtrl.text.trim()}',
+        address:
+            '${streetCtrl.text.trim()}, ${numberCtrl.text.trim()}, ${neighborhoodCtrl.text.trim()}, ${cityCtrl.text.trim()} - ${stateCtrl.text.trim()}',
         cnpj: cnpjCtrl.text.trim(),
         street: streetCtrl.text.trim(),
         number: numberCtrl.text.trim(),
@@ -107,12 +134,16 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
 
       final success = await viewModel.updateStore(updated);
       if (!mounted) return;
-      
+
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja atualizada')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Loja atualizada')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao atualizar loja')),
+          SnackBar(
+            content: Text(viewModel.errorMessage ?? 'Erro ao atualizar loja'),
+          ),
         );
       }
     }
@@ -127,8 +158,6 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
       await viewModel.loadCoupons();
     });
   }
-
-
 
   Future<void> _createCoupon() async {
     final viewModel = context.read<StoreViewModel>();
@@ -163,7 +192,9 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao criar cupom')),
+        SnackBar(
+          content: Text(viewModel.errorMessage ?? 'Erro ao criar cupom'),
+        ),
       );
     }
   }
@@ -172,8 +203,12 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
     final titleCtrl = TextEditingController(text: coupon.title);
     final descCtrl = TextEditingController(text: coupon.description);
     final discountCtrl = TextEditingController(text: coupon.discount);
-    final minCtrl = TextEditingController(text: coupon.minCollections.toString());
-    final qtyCtrl = TextEditingController(text: coupon.quantityAvailable.toString());
+    final minCtrl = TextEditingController(
+      text: coupon.minCollections.toString(),
+    );
+    final qtyCtrl = TextEditingController(
+      text: coupon.quantityAvailable.toString(),
+    );
     final validCtrl = TextEditingController(
       text: coupon.validUntil != null
           ? DateFormat('dd/MM/yyyy').format(coupon.validUntil!)
@@ -204,7 +239,11 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(vm.errorMessage ?? 'Erro ao excluir cupom')),
+                          SnackBar(
+                            content: Text(
+                              vm.errorMessage ?? 'Erro ao excluir cupom',
+                            ),
+                          ),
                         );
                       }
                     },
@@ -214,13 +253,24 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
               content: SingleChildScrollView(
                 child: Column(
                   children: [
-                    TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Título')),
-                    TextField(controller: descCtrl, decoration: const InputDecoration(labelText: 'Descrição')),
-                    TextField(controller: discountCtrl, decoration: const InputDecoration(labelText: 'Desconto')),
+                    TextField(
+                      controller: titleCtrl,
+                      decoration: const InputDecoration(labelText: 'Título'),
+                    ),
+                    TextField(
+                      controller: descCtrl,
+                      decoration: const InputDecoration(labelText: 'Descrição'),
+                    ),
+                    TextField(
+                      controller: discountCtrl,
+                      decoration: const InputDecoration(labelText: 'Desconto'),
+                    ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: validCtrl,
-                      decoration: const InputDecoration(labelText: 'Válido Até (DD/MM/AAAA)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Válido Até (DD/MM/AAAA)',
+                      ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -229,17 +279,32 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    TextField(controller: minCtrl, decoration: const InputDecoration(labelText: 'Mínimo de Coletas'), keyboardType: TextInputType.number),
-                    TextField(controller: qtyCtrl, decoration: const InputDecoration(labelText: 'Quantidade Disponível'), keyboardType: TextInputType.number),
+                    TextField(
+                      controller: minCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Mínimo de Coletas',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    TextField(
+                      controller: qtyCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Quantidade Disponível',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
                   ],
                 ),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text('Cancelar'),
+                ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
                   child: const Text('Salvar'),
-                )
+                ),
               ],
             );
           },
@@ -258,17 +323,22 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
         discount: discountCtrl.text.trim(),
         validUntil: parsed,
         minCollections: int.tryParse(minCtrl.text) ?? coupon.minCollections,
-        quantityAvailable: int.tryParse(qtyCtrl.text) ?? coupon.quantityAvailable,
+        quantityAvailable:
+            int.tryParse(qtyCtrl.text) ?? coupon.quantityAvailable,
       );
-      
+
       final success = await viewModel.updateCoupon(updated);
       if (!mounted) return;
-      
+
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cupom atualizado')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Cupom atualizado')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao atualizar cupom')),
+          SnackBar(
+            content: Text(viewModel.errorMessage ?? 'Erro ao atualizar cupom'),
+          ),
         );
       }
     }
@@ -280,7 +350,7 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
     final store = viewModel.store;
     final coupons = viewModel.coupons;
     final isLoading = viewModel.isLoading;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Painel do Parceiro'),
@@ -290,7 +360,10 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
         actions: [
           IconButton(
             tooltip: 'Sair',
-            onPressed: () => showDialog(context: context, builder: (_) => const LogoutConfirmation()),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => const LogoutConfirmation(),
+            ),
             icon: const Icon(Icons.logout, color: Colors.black),
           ),
         ],
@@ -309,20 +382,33 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                       radius: 22,
                       backgroundColor: Colors.white,
                       child: Text(
-                        store != null && store.name.isNotEmpty ? store.name[0].toUpperCase() : '?',
-                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                        store != null && store.name.isNotEmpty
+                            ? store.name[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(store?.name ?? 'Nome da Loja', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      store?.name ?? 'Nome da Loja',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
                 ElevatedButton.icon(
-                  onPressed: () async { await _showEditStoreDialog(); },
+                  onPressed: () async {
+                    await _showEditStoreDialog();
+                  },
                   icon: const Icon(Icons.edit),
                   label: const Text('Editar Loja'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[200], foregroundColor: Colors.black),
-                )
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[200],
+                    foregroundColor: Colors.black,
+                  ),
+                ),
               ],
             ),
 
@@ -336,14 +422,26 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
               crossAxisSpacing: 12,
               childAspectRatio: 2.2,
               children: [
-                _InfoCard(color: Colors.green, icon: Icons.inventory, title: 'Coletas', value: '0'),
-                _InfoCard(color: Colors.purple, icon: Icons.card_giftcard, title: 'Cupons Ativos', value: viewModel.activeCouponsCount.toString()),
-                _InfoCard(color: Colors.orange, icon: Icons.receipt_long, title: 'Cupons Usados', value: '0'),
+                _InfoCard(
+                  color: Colors.purple,
+                  icon: Icons.card_giftcard,
+                  title: 'Cupons Ativos',
+                  value: viewModel.activeCouponsCount.toString(),
+                ),
+                _InfoCard(
+                  color: Colors.orange,
+                  icon: Icons.receipt_long,
+                  title: 'Cupons Usados',
+                  value: '0',
+                ),
               ],
             ),
 
             const SizedBox(height: 18),
-            const Text('Novo Cupom', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Novo Cupom',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Card(
               child: Padding(
@@ -351,11 +449,23 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(controller: _titleCtrl, decoration: const InputDecoration(labelText: 'Título do Cupom', hintText: 'Ex: 15% de desconto')),
+                    TextFormField(
+                      controller: _titleCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Título do Cupom',
+                        hintText: 'Ex: 15% de desconto',
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    TextFormField(controller: _descCtrl, decoration: const InputDecoration(labelText: 'Descrição')),
+                    TextFormField(
+                      controller: _descCtrl,
+                      decoration: const InputDecoration(labelText: 'Descrição'),
+                    ),
                     const SizedBox(height: 8),
-                    TextFormField(controller: _discountCtrl, decoration: const InputDecoration(labelText: 'Desconto')),
+                    TextFormField(
+                      controller: _discountCtrl,
+                      decoration: const InputDecoration(labelText: 'Desconto'),
+                    ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _validUntilCtrl,
@@ -377,100 +487,163 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                       },
                     ),
                     const SizedBox(height: 8),
-                    Row(children: [Expanded(child: TextFormField(controller: _minCollectionsCtrl, decoration: const InputDecoration(labelText: 'Mínimo de Coletas'))), const SizedBox(width: 8), Expanded(child: TextFormField(controller: _quantityCtrl, decoration: const InputDecoration(labelText: 'Quantidade Disponível')))]),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _minCollectionsCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Mínimo de Coletas',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _quantityCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Quantidade Disponível',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: OutlinedButton(onPressed: () { _titleCtrl.clear(); _descCtrl.clear(); _discountCtrl.clear(); _minCollectionsCtrl.clear(); _quantityCtrl.clear(); _validUntilCtrl.clear(); viewModel.clearSelectedValidUntil(); }, child: const Text('Cancelar'))),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              _titleCtrl.clear();
+                              _descCtrl.clear();
+                              _discountCtrl.clear();
+                              _minCollectionsCtrl.clear();
+                              _quantityCtrl.clear();
+                              _validUntilCtrl.clear();
+                              viewModel.clearSelectedValidUntil();
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Expanded(child: ElevatedButton(onPressed: _createCoupon, child: const Text('Criar Cupom'))),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _createCoupon,
+                            child: const Text('Criar Cupom'),
+                          ),
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
 
             const SizedBox(height: 18),
-            
+
             isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : coupons.isEmpty
-                    ? Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            children: const [
-                              Icon(Icons.card_giftcard, size: 48, color: Colors.grey),
-                              SizedBox(height: 12),
-                              Text('Nenhum cupom cadastrado ainda.'),
-                            ],
+                ? Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: const [
+                          Icon(
+                            Icons.card_giftcard,
+                            size: 48,
+                            color: Colors.grey,
                           ),
-                        ),
-                      )
-                    : Column(
-                        children: coupons.map((c) {
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            child: InkWell(
-                              onTap: () => _showEditDialog(c),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.green[50],
-                                      child: Icon(Icons.local_offer, color: Colors.green),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                          SizedBox(height: 12),
+                          Text('Nenhum cupom cadastrado ainda.'),
+                        ],
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: coupons.map((c) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        child: InkWell(
+                          onTap: () => _showEditDialog(c),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.green[50],
+                                  child: Icon(
+                                    Icons.local_offer,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        c.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        c.description,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
                                         children: [
+                                          Icon(
+                                            Icons.confirmation_number,
+                                            size: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 4),
                                           Text(
-                                            c.title,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
+                                            'Qtd: ${c.quantityAvailable}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            c.description,
-                                            style: const TextStyle(fontSize: 13, color: Colors.black54),
+                                          const SizedBox(width: 16),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            size: 14,
+                                            color: Colors.grey[600],
                                           ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.confirmation_number, size: 14, color: Colors.grey[600]),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                'Qtd: ${c.quantityAvailable}',
-                                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                                              ),
-                                              const SizedBox(width: 16),
-                                              Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                c.validUntil != null 
-                                                  ? 'Válido até: ${c.validUntil!.day.toString().padLeft(2, '0')}/${c.validUntil!.month.toString().padLeft(2, '0')}/${c.validUntil!.year}'
-                                                  : 'Sem validade',
-                                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                                              ),
-                                            ],
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            c.validUntil != null
+                                                ? 'Válido até: ${c.validUntil!.day.toString().padLeft(2, '0')}/${c.validUntil!.month.toString().padLeft(2, '0')}/${c.validUntil!.year}'
+                                                : 'Sem validade',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Icon(Icons.edit, color: Colors.grey[400]),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
+                                Icon(Icons.edit, color: Colors.grey[400]),
+                              ],
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
           ],
         ),
       ),
@@ -484,17 +657,28 @@ class _InfoCard extends StatelessWidget {
   final String title;
   final String value;
 
-  const _InfoCard({required this.color, required this.icon, required this.title, required this.value});
+  const _InfoCard({
+    required this.color,
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: color.withOpacity(0.95), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            CircleAvatar(backgroundColor: Colors.white.withOpacity(0.3), child: Icon(icon, color: Colors.white)),
+            CircleAvatar(
+              backgroundColor: Colors.white.withOpacity(0.3),
+              child: Icon(icon, color: Colors.white),
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -502,10 +686,17 @@ class _InfoCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(title, style: const TextStyle(color: Colors.white70)),
-                  Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -516,7 +707,10 @@ class _InfoCard extends StatelessWidget {
 // Formatter para inserir automaticamente barras em DD/MM/AAAA
 class DateInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var digits = newValue.text.replaceAll('/', '');
     if (digits.length > 8) digits = digits.substring(0, 8);
     String formatted = '';
@@ -549,4 +743,3 @@ DateTime? _parseDate(String input) {
     return null;
   }
 }
-

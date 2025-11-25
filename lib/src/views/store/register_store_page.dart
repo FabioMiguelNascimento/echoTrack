@@ -52,7 +52,9 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
 
       final user = auth.currentUser;
       if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usuário não autenticado')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Usuário não autenticado')),
+        );
         return;
       }
 
@@ -63,7 +65,8 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
         country: 'BR',
         state: _stateCtrl.text.trim(),
         city: _cityCtrl.text.trim(),
-        address: '${_streetCtrl.text.trim()}, ${_numberCtrl.text.trim()}, ${_neighborhoodCtrl.text.trim()}, ${_cityCtrl.text.trim()} - ${_stateCtrl.text.trim()}',
+        address:
+            '${_streetCtrl.text.trim()}, ${_numberCtrl.text.trim()}, ${_neighborhoodCtrl.text.trim()}, ${_cityCtrl.text.trim()} - ${_stateCtrl.text.trim()}',
         cnpj: _cnpjCtrl.text.trim(),
         street: _streetCtrl.text.trim(),
         number: _numberCtrl.text.trim(),
@@ -72,10 +75,16 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
 
       await storeRepo.createStore(store);
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja cadastrada com sucesso')));
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const StoreDashboardPage()));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Loja cadastrada com sucesso')),
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const StoreDashboardPage()),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao cadastrar loja: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao cadastrar loja: $e')));
     }
   }
 
@@ -96,29 +105,47 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 8),
-              const Text('Cadastro da sua loja', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Cadastro da sua loja',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               const Text('É necessário CNPJ para cadastrar.'),
               const SizedBox(height: 16),
 
-              const Text('Informações Básicas', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text(
+                'Informações Básicas',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Nome do Ponto *', hintText: 'Farmácia São João'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe o nome' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da loja *',
+                  hintText: 'Farmácia São João',
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Informe o nome' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _cnpjCtrl,
-                decoration: const InputDecoration(labelText: 'CNPJ *', hintText: '12.345.676/7674-56'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe o CNPJ' : null,
+                decoration: const InputDecoration(
+                  labelText: 'CNPJ *',
+                  hintText: '12.345.676/7674-56',
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Informe o CNPJ' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _streetCtrl,
-                decoration: const InputDecoration(labelText: 'Rua *', hintText: 'Rua das Flores'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe a rua' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Rua *',
+                  hintText: 'Rua das Flores',
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Informe a rua' : null,
               ),
               const SizedBox(height: 8),
               Row(
@@ -127,8 +154,12 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                     flex: 2,
                     child: TextFormField(
                       controller: _numberCtrl,
-                      decoration: const InputDecoration(labelText: 'Número *', hintText: '123'),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Informe o número' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Número *',
+                        hintText: '123',
+                      ),
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Informe o número' : null,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -136,8 +167,12 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                     flex: 3,
                     child: TextFormField(
                       controller: _neighborhoodCtrl,
-                      decoration: const InputDecoration(labelText: 'Bairro *', hintText: 'Centro'),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Informe o bairro' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Bairro *',
+                        hintText: 'Centro',
+                      ),
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Informe o bairro' : null,
                     ),
                   ),
                 ],
@@ -149,8 +184,12 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                     flex: 3,
                     child: TextFormField(
                       controller: _cityCtrl,
-                      decoration: const InputDecoration(labelText: 'Cidade *', hintText: 'Taquara'),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Informe a cidade' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Cidade *',
+                        hintText: 'Taquara',
+                      ),
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Informe a cidade' : null,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -158,7 +197,10 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                     flex: 1,
                     child: TextFormField(
                       controller: _stateCtrl,
-                      decoration: const InputDecoration(labelText: 'UF *', hintText: 'RS'),
+                      decoration: const InputDecoration(
+                        labelText: 'UF *',
+                        hintText: 'RS',
+                      ),
                       maxLength: 2,
                       validator: (v) => (v == null || v.isEmpty) ? 'UF' : null,
                     ),
@@ -174,12 +216,23 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: _nameCtrl,
                     builder: (context, value, _) {
-                      final text = (value.text.trim().isNotEmpty) ? value.text.trim() : '';
-                      final letter = text.isNotEmpty ? text[0].toUpperCase() : '?';
+                      final text = (value.text.trim().isNotEmpty)
+                          ? value.text.trim()
+                          : '';
+                      final letter = text.isNotEmpty
+                          ? text[0].toUpperCase()
+                          : '?';
                       return CircleAvatar(
                         radius: 44,
                         backgroundColor: Colors.green[50],
-                        child: Text(letter, style: const TextStyle(fontSize: 36, color: Colors.green, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          letter,
+                          style: const TextStyle(
+                            fontSize: 36,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -188,26 +241,39 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('A imagem será gerada automaticamente usando a primeira letra do nome do comércio.'),
+                        Text(
+                          'A imagem será gerada automaticamente usando a primeira letra do nome do comércio.',
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
 
               const SizedBox(height: 12),
-              const Text('Contato e Horários', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text(
+                'Contato e Horários',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _phoneCtrl,
-                decoration: const InputDecoration(labelText: 'Telefone *', hintText: '5199912334455'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe o telefone' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Telefone *',
+                  hintText: '5199912334455',
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Informe o telefone' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _hoursCtrl,
-                decoration: const InputDecoration(labelText: 'Horário de Funcionamento *', hintText: 'Seg Sex: 8h-18h | Sab 12h-18h'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe o horário' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Horário de Funcionamento *',
+                  hintText: 'Seg Sex: 8h-18h | Sab 12h-18h',
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Informe o horário' : null,
               ),
 
               const SizedBox(height: 18),
@@ -225,7 +291,7 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
                       onPressed: _submit,
                       child: const Text('Cadastrar Comércio'),
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
