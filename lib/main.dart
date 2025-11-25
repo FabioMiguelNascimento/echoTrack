@@ -12,10 +12,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'package:g1_g2/src/repositories/store_repository.dart';
+import 'package:g1_g2/src/repositories/coupon_repository.dart';
 
 // Viewmodels
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/store/store_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/user/coupons_viewmodel.dart';
 
 // Pages
 import 'package:g1_g2/src/views/auth/login_page.dart';
@@ -24,6 +28,9 @@ import 'package:g1_g2/src/views/auth/login_page.dart';
 import 'package:g1_g2/utils/home_selector.dart';
 
 import 'firebase_options.dart'; // File: firebase_options.dart
+
+// DEBUG FLAG: se true, abre sempre a tela de Login (útil para desenvolvimento)
+const bool kForceLoginScreen = true;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +51,8 @@ class MainApp extends StatelessWidget {
         // Usamos Provider() padrão, pois eles não notificam a UI.
         Provider<AuthRepository>(create: (_) => AuthRepository()),
         Provider<UserRepository>(create: (_) => UserRepository()),
+        Provider<StoreRepository>(create: (_) => StoreRepository()),
+        Provider<CouponRepository>(create: (_) => CouponRepository()),
         Provider<CollectPointRepository>(
           create: (_) => CollectPointRepository(),
         ),
@@ -83,6 +92,23 @@ class MainApp extends StatelessWidget {
           create: (context) => DiscartViewmodel(
             context.read<DiscartRepository>(),
             context.read<AuthRepository>(),
+            context.read<UserRepository>(),
+            context.read<CouponRepository>(),
+          ),
+        ),
+
+        ChangeNotifierProvider<StoreViewModel>(
+          create: (context) => StoreViewModel(
+            context.read<StoreRepository>(),
+            context.read<CouponRepository>(),
+            context.read<AuthRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider<CouponsViewModel>(
+          create: (context) => CouponsViewModel(
+            context.read<CouponRepository>(),
+            context.read<DiscartRepository>(),
+            context.read<AuthRepository>(),
           ),
         ),
       ],
@@ -92,8 +118,16 @@ class MainApp extends StatelessWidget {
           brightness: Brightness.light,
           primarySwatch: Colors.green,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          inputDecorationTheme: InputDecorationTheme(
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.green, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+          ),
         ),
-        home: const AuthWrapper(),
+        home: kForceLoginScreen ? const LoginPage() : const AuthWrapper(),
       ),
     );
   }

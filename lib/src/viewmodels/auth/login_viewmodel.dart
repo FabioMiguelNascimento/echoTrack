@@ -83,11 +83,16 @@ class LoginViewModel extends BaseViewModel {
       return UserRole.user; // Default para usuário comum se não encontrar
     }
 
+    // Aceita tanto 'store' (inglês) quanto 'loja' (português)
     switch (usuario.role) {
       case 'admin':
         return UserRole.admin;
       case 'store':
+      case 'loja':
         return UserRole.store;
+      case 'user':
+      case 'cliente':
+        return UserRole.user;
       default:
         return UserRole.user;
     }
