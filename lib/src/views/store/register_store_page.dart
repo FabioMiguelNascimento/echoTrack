@@ -16,7 +16,11 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _cnpjCtrl = TextEditingController();
-  final _addressCtrl = TextEditingController();
+  final _streetCtrl = TextEditingController();
+  final _numberCtrl = TextEditingController();
+  final _neighborhoodCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _hoursCtrl = TextEditingController();
 
@@ -24,7 +28,11 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
   void dispose() {
     _nameCtrl.dispose();
     _cnpjCtrl.dispose();
-    _addressCtrl.dispose();
+    _streetCtrl.dispose();
+    _numberCtrl.dispose();
+    _neighborhoodCtrl.dispose();
+    _cityCtrl.dispose();
+    _stateCtrl.dispose();
     _phoneCtrl.dispose();
     _hoursCtrl.dispose();
     super.dispose();
@@ -53,10 +61,13 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
         email: user.email ?? '',
         name: _nameCtrl.text.trim(),
         country: 'BR',
-        state: '',
-        city: '',
-        address: _addressCtrl.text.trim(),
+        state: _stateCtrl.text.trim(),
+        city: _cityCtrl.text.trim(),
+        address: '${_streetCtrl.text.trim()}, ${_numberCtrl.text.trim()}, ${_neighborhoodCtrl.text.trim()}, ${_cityCtrl.text.trim()} - ${_stateCtrl.text.trim()}',
         cnpj: _cnpjCtrl.text.trim(),
+        street: _streetCtrl.text.trim(),
+        number: _numberCtrl.text.trim(),
+        neighborhood: _neighborhoodCtrl.text.trim(),
       );
 
       await storeRepo.createStore(store);
@@ -105,9 +116,54 @@ class _RegisterStorePageState extends State<RegisterStorePage> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _addressCtrl,
-                decoration: const InputDecoration(labelText: 'Endereço *', hintText: 'Rua, número, bairro, cidade'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Informe o endereço' : null,
+                controller: _streetCtrl,
+                decoration: const InputDecoration(labelText: 'Rua *', hintText: 'Rua das Flores'),
+                validator: (v) => (v == null || v.isEmpty) ? 'Informe a rua' : null,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: _numberCtrl,
+                      decoration: const InputDecoration(labelText: 'Número *', hintText: '123'),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Informe o número' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      controller: _neighborhoodCtrl,
+                      decoration: const InputDecoration(labelText: 'Bairro *', hintText: 'Centro'),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Informe o bairro' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      controller: _cityCtrl,
+                      decoration: const InputDecoration(labelText: 'Cidade *', hintText: 'Taquara'),
+                      validator: (v) => (v == null || v.isEmpty) ? 'Informe a cidade' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: TextFormField(
+                      controller: _stateCtrl,
+                      decoration: const InputDecoration(labelText: 'UF *', hintText: 'RS'),
+                      maxLength: 2,
+                      validator: (v) => (v == null || v.isEmpty) ? 'UF' : null,
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 12),

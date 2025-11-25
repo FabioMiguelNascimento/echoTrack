@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:g1_g2/src/repositories/coupon_repository.dart';
-import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/views/auth/logout_confirmation.dart';
 import 'package:g1_g2/src/models/coupon_model.dart';
-import 'package:g1_g2/src/repositories/store_repository.dart';
 import 'package:g1_g2/src/models/store_model.dart';
+import 'package:g1_g2/src/viewmodels/store/store_viewmodel.dart';
+import 'package:intl/intl.dart';
 
 class StoreDashboardPage extends StatefulWidget {
   const StoreDashboardPage({super.key});
@@ -22,10 +22,7 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
   final _minCollectionsCtrl = TextEditingController();
   final _quantityCtrl = TextEditingController();
 
-  List<CouponModel> _coupons = [];
-  bool _loading = false;
-  String _storeId = '';
-  StoreModel? _store;
+
 
   @override
   void dispose() {
@@ -39,68 +36,85 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
   }
   
   Future<void> _showEditStoreDialog() async {
-    try {
-      final auth = context.read<AuthRepository>();
-      final user = auth.currentUser;
-      final storeId = user?.uid;
-      if (storeId == null || storeId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usuário não autenticado')));
-        return;
-      }
+    final viewModel = context.read<StoreViewModel>();
+    final store = viewModel.store;
+    
+    if (store == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja não encontrada')));
+      return;
+    }
 
-      final storeRepo = context.read<StoreRepository>();
-      final store = await storeRepo.getStoreById(storeId);
-      if (store == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja não encontrada')));
-        return;
-      }
+    final nameCtrl = TextEditingController(text: store.name);
+    final cnpjCtrl = TextEditingController(text: store.cnpj);
+    final streetCtrl = TextEditingController(text: store.street ?? '');
+    final numberCtrl = TextEditingController(text: store.number ?? '');
+    final neighborhoodCtrl = TextEditingController(text: store.neighborhood ?? '');
+    final cityCtrl = TextEditingController(text: store.city);
+    final stateCtrl = TextEditingController(text: store.state);
 
-      final nameCtrl = TextEditingController(text: store.name);
-      final addressCtrl = TextEditingController(text: store.address);
-      final cnpjCtrl = TextEditingController(text: store.cnpj);
-
-      final result = await showDialog<bool>(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: const Text('Editar Loja'),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nome')),
-                  TextField(controller: cnpjCtrl, decoration: const InputDecoration(labelText: 'CNPJ')),
-                  TextField(controller: addressCtrl, decoration: const InputDecoration(labelText: 'Endereço')),
-                ],
-              ),
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Editar Loja'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nome')),
+                const SizedBox(height: 8),
+                TextField(controller: cnpjCtrl, decoration: const InputDecoration(labelText: 'CNPJ')),
+                const SizedBox(height: 8),
+                TextField(controller: streetCtrl, decoration: const InputDecoration(labelText: 'Rua')),
+                const SizedBox(height: 8),
+                TextField(controller: numberCtrl, decoration: const InputDecoration(labelText: 'Número')),
+                const SizedBox(height: 8),
+                TextField(controller: neighborhoodCtrl, decoration: const InputDecoration(labelText: 'Bairro')),
+                const SizedBox(height: 8),
+                TextField(controller: cityCtrl, decoration: const InputDecoration(labelText: 'Cidade')),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: stateCtrl,
+                  decoration: const InputDecoration(labelText: 'Estado (UF)'),
+                  textCapitalization: TextCapitalization.characters,
+                  maxLength: 2,
+                ),
+              ],
             ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
-              ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Salvar')),
-            ],
-          );
-        },
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
+            ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Salvar')),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      final updated = StoreModel(
+        uid: store.uid,
+        email: store.email,
+        name: nameCtrl.text.trim(),
+        country: store.country,
+        state: stateCtrl.text.trim(),
+        city: cityCtrl.text.trim(),
+        address: '${streetCtrl.text.trim()}, ${numberCtrl.text.trim()}, ${neighborhoodCtrl.text.trim()}, ${cityCtrl.text.trim()} - ${stateCtrl.text.trim()}',
+        cnpj: cnpjCtrl.text.trim(),
+        street: streetCtrl.text.trim(),
+        number: numberCtrl.text.trim(),
+        neighborhood: neighborhoodCtrl.text.trim(),
       );
 
-      if (result == true) {
-        final updated = StoreModel(
-          uid: store.uid,
-          email: store.email,
-          name: nameCtrl.text.trim(),
-          country: store.country,
-          state: store.state,
-          city: store.city,
-          address: addressCtrl.text.trim(),
-          cnpj: cnpjCtrl.text.trim(),
-        );
-
-        await storeRepo.updateStore(storeId, updated);
-        if (!mounted) return;
-        setState(() => _store = updated);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja atualizada')));
-      }
-    } catch (e) {
+      final success = await viewModel.updateStore(updated);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao atualizar loja: $e')));
+      
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loja atualizada')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao atualizar loja')),
+        );
+      }
     }
   }
 
@@ -108,86 +122,49 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _loadStore();
-      await _loadCoupons();
+      final viewModel = context.read<StoreViewModel>();
+      await viewModel.loadStore();
+      await viewModel.loadCoupons();
     });
   }
 
-  Future<void> _loadStore() async {
-    try {
-      final auth = context.read<AuthRepository>();
-      final user = auth.currentUser;
-      final storeId = user?.uid;
-      if (storeId == null || storeId.isEmpty) return;
-      final storeRepo = context.read<StoreRepository>();
-      final s = await storeRepo.getStoreById(storeId);
-      if (!mounted) return;
-      setState(() => _store = s);
-    } catch (e) {
-      // ignore
-    }
-  }
 
-  Future<void> _loadCoupons() async {
-    setState(() => _loading = true);
-    try {
-      final couponRepo = context.read<CouponRepository>();
-      if (_storeId.isEmpty) {
-        final auth = context.read<AuthRepository>();
-        final user = auth.currentUser;
-        _storeId = user?.uid ?? '';
-      }
-      final list = await couponRepo.getCouponsByStore(_storeId);
-      if (!mounted) return;
-      setState(() => _coupons = list);
-    } catch (e) {
-      // ignore
-    } finally {
-      setState(() => _loading = false);
-    }
-  }
-
-  int _activeCouponsCount() {
-    final now = DateTime.now();
-    return _coupons.where((c) {
-      final valid = c.validUntil == null || c.validUntil!.isAfter(now);
-      return valid && (c.quantityAvailable > 0);
-    }).length;
-  }
 
   Future<void> _createCoupon() async {
-    try {
-      final couponRepo = context.read<CouponRepository>();
-      final auth = context.read<AuthRepository>();
-      final user = auth.currentUser;
-      final storeId = user?.uid;
-      if (storeId == null || storeId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usuário não autenticado')));
-        return;
-      }
-      final coupon = CouponModel(
-        id: '',
-        storeId: storeId,
-        title: _titleCtrl.text.trim(),
-        description: _descCtrl.text.trim(),
-        discount: _discountCtrl.text.trim(),
-        validUntil: DateTime.now().add(const Duration(days: 30)),
-        minCollections: int.tryParse(_minCollectionsCtrl.text) ?? 0,
-        quantityAvailable: int.tryParse(_quantityCtrl.text) ?? 0,
+    final viewModel = context.read<StoreViewModel>();
+    final parsedDate = _parseDate(_validUntilCtrl.text.trim());
+    if (parsedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data inválida. Use formato DD/MM/AAAA')),
       );
+      return;
+    }
+    viewModel.setSelectedValidUntil(parsedDate);
 
-      await couponRepo.createCoupon(coupon);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cupom criado')));
+    final success = await viewModel.createCoupon(
+      title: _titleCtrl.text.trim(),
+      description: _descCtrl.text.trim(),
+      discount: _discountCtrl.text.trim(),
+      minCollections: int.tryParse(_minCollectionsCtrl.text) ?? 0,
+      quantityAvailable: int.tryParse(_quantityCtrl.text) ?? 0,
+    );
+
+    if (!mounted) return;
+    if (success) {
       _titleCtrl.clear();
       _descCtrl.clear();
       _discountCtrl.clear();
       _minCollectionsCtrl.clear();
       _quantityCtrl.clear();
-      await _loadCoupons();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao criar cupom: $e')));
+      _validUntilCtrl.clear();
+      viewModel.clearSelectedValidUntil();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cupom criado com sucesso!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao criar cupom')),
+      );
     }
   }
 
@@ -197,60 +174,113 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
     final discountCtrl = TextEditingController(text: coupon.discount);
     final minCtrl = TextEditingController(text: coupon.minCollections.toString());
     final qtyCtrl = TextEditingController(text: coupon.quantityAvailable.toString());
+    final validCtrl = TextEditingController(
+      text: coupon.validUntil != null
+          ? DateFormat('dd/MM/yyyy').format(coupon.validUntil!)
+          : '',
+    );
 
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Editar Cupom'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Título')),
-                TextField(controller: descCtrl, decoration: const InputDecoration(labelText: 'Descrição')),
-                TextField(controller: discountCtrl, decoration: const InputDecoration(labelText: 'Desconto')),
-                TextField(controller: minCtrl, decoration: const InputDecoration(labelText: 'Mínimo de Coletas'), keyboardType: TextInputType.number),
-                TextField(controller: qtyCtrl, decoration: const InputDecoration(labelText: 'Quantidade Disponível'), keyboardType: TextInputType.number),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Editar Cupom'),
+                  IconButton(
+                    tooltip: 'Excluir',
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () async {
+                      final vm = context.read<StoreViewModel>();
+                      final success = await vm.deleteCoupon(coupon.id);
+                      if (!mounted) return;
+                      if (success) {
+                        Navigator.of(ctx).pop(false); // fecha o diálogo
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Cupom excluído')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(vm.errorMessage ?? 'Erro ao excluir cupom')),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Título')),
+                    TextField(controller: descCtrl, decoration: const InputDecoration(labelText: 'Descrição')),
+                    TextField(controller: discountCtrl, decoration: const InputDecoration(labelText: 'Desconto')),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: validCtrl,
+                      decoration: const InputDecoration(labelText: 'Válido Até (DD/MM/AAAA)'),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(8),
+                        DateInputFormatter(),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(controller: minCtrl, decoration: const InputDecoration(labelText: 'Mínimo de Coletas'), keyboardType: TextInputType.number),
+                    TextField(controller: qtyCtrl, decoration: const InputDecoration(labelText: 'Quantidade Disponível'), keyboardType: TextInputType.number),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Salvar'),
+                )
               ],
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Salvar'),
-            )
-          ],
+            );
+          },
         );
       },
     );
 
     if (result == true) {
-      try {
-        final repo = context.read<CouponRepository>();
-        final updated = CouponModel(
-          id: coupon.id,
-          storeId: coupon.storeId,
-          title: titleCtrl.text.trim(),
-          description: descCtrl.text.trim(),
-          discount: discountCtrl.text.trim(),
-          validUntil: coupon.validUntil,
-          minCollections: int.tryParse(minCtrl.text) ?? coupon.minCollections,
-          quantityAvailable: int.tryParse(qtyCtrl.text) ?? coupon.quantityAvailable,
-        );
-        await repo.updateCoupon(updated);
-        if (!mounted) return;
+      final viewModel = context.read<StoreViewModel>();
+      final parsed = _parseDate(validCtrl.text.trim());
+      final updated = CouponModel(
+        id: coupon.id,
+        storeId: coupon.storeId,
+        title: titleCtrl.text.trim(),
+        description: descCtrl.text.trim(),
+        discount: discountCtrl.text.trim(),
+        validUntil: parsed,
+        minCollections: int.tryParse(minCtrl.text) ?? coupon.minCollections,
+        quantityAvailable: int.tryParse(qtyCtrl.text) ?? coupon.quantityAvailable,
+      );
+      
+      final success = await viewModel.updateCoupon(updated);
+      if (!mounted) return;
+      
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cupom atualizado')));
-        await _loadCoupons();
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao atualizar cupom: $e')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(viewModel.errorMessage ?? 'Erro ao atualizar cupom')),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<StoreViewModel>();
+    final store = viewModel.store;
+    final coupons = viewModel.coupons;
+    final isLoading = viewModel.isLoading;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Painel do Parceiro'),
@@ -279,12 +309,12 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                       radius: 22,
                       backgroundColor: Colors.white,
                       child: Text(
-                        _store != null && _store!.name.isNotEmpty ? _store!.name[0].toUpperCase() : '?',
+                        store != null && store.name.isNotEmpty ? store.name[0].toUpperCase() : '?',
                         style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(_store?.name ?? 'Nome da Loja', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(store?.name ?? 'Nome da Loja', style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
                 ElevatedButton.icon(
@@ -307,7 +337,7 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
               childAspectRatio: 2.2,
               children: [
                 _InfoCard(color: Colors.green, icon: Icons.inventory, title: 'Coletas', value: '0'),
-                _InfoCard(color: Colors.purple, icon: Icons.card_giftcard, title: 'Cupons Ativos', value: _activeCouponsCount().toString()),
+                _InfoCard(color: Colors.purple, icon: Icons.card_giftcard, title: 'Cupons Ativos', value: viewModel.activeCouponsCount.toString()),
                 _InfoCard(color: Colors.orange, icon: Icons.receipt_long, title: 'Cupons Usados', value: '0'),
               ],
             ),
@@ -325,13 +355,33 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                     const SizedBox(height: 8),
                     TextFormField(controller: _descCtrl, decoration: const InputDecoration(labelText: 'Descrição')),
                     const SizedBox(height: 8),
-                    Row(children: [Expanded(child: TextFormField(controller: _discountCtrl, decoration: const InputDecoration(labelText: 'Desconto'))), const SizedBox(width: 8), Expanded(child: TextFormField(controller: _validUntilCtrl, decoration: const InputDecoration(labelText: 'Válido Até')))]),
+                    TextFormField(controller: _discountCtrl, decoration: const InputDecoration(labelText: 'Desconto')),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _validUntilCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Válido Até (DD/MM/AAAA)',
+                        hintText: 'Digite a data',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(8),
+                        DateInputFormatter(),
+                      ],
+                      onChanged: (value) {
+                        final d = _parseDate(value);
+                        if (d != null) {
+                          viewModel.setSelectedValidUntil(d);
+                        }
+                      },
+                    ),
                     const SizedBox(height: 8),
                     Row(children: [Expanded(child: TextFormField(controller: _minCollectionsCtrl, decoration: const InputDecoration(labelText: 'Mínimo de Coletas'))), const SizedBox(width: 8), Expanded(child: TextFormField(controller: _quantityCtrl, decoration: const InputDecoration(labelText: 'Quantidade Disponível')))]),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: OutlinedButton(onPressed: () { _titleCtrl.clear(); _descCtrl.clear(); _discountCtrl.clear(); _minCollectionsCtrl.clear(); _quantityCtrl.clear(); }, child: const Text('Cancelar'))),
+                        Expanded(child: OutlinedButton(onPressed: () { _titleCtrl.clear(); _descCtrl.clear(); _discountCtrl.clear(); _minCollectionsCtrl.clear(); _quantityCtrl.clear(); _validUntilCtrl.clear(); viewModel.clearSelectedValidUntil(); }, child: const Text('Cancelar'))),
                         const SizedBox(width: 8),
                         Expanded(child: ElevatedButton(onPressed: _createCoupon, child: const Text('Criar Cupom'))),
                       ],
@@ -342,10 +392,10 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
             ),
 
             const SizedBox(height: 18),
-            // Cupons list (header removed as requested)
-            _loading
+            
+            isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _coupons.isEmpty
+                : coupons.isEmpty
                     ? Card(
                         child: Padding(
                           padding: const EdgeInsets.all(24),
@@ -359,63 +409,64 @@ class _StoreDashboardPageState extends State<StoreDashboardPage> {
                         ),
                       )
                     : Column(
-                        children: _coupons.map((c) {
+                        children: coupons.map((c) {
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 6),
-                            child: ListTile(
-                              title: Text(c.title),
-                              subtitle: Text(c.description),
-                              isThreeLine: true,
-                              trailing: PopupMenuButton<String>(
-                                onSelected: (v) async {
-                                  final repo = context.read<CouponRepository>();
-                                  if (v == 'edit') {
-                                    await _showEditDialog(c);
-                                  } else if (v == 'decrement') {
-                                    await repo.decrementCouponQuantity(c.id);
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quantidade decrementada')));
-                                    await _loadCoupons();
-                                  } else if (v == 'delete') {
-                                    final ok = await showDialog<bool>(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('Confirmar exclusão'),
-                                        content: const Text('Deseja excluir este cupom?'),
-                                        actions: [
-                                          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancelar')),
-                                          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Excluir')),
+                            child: InkWell(
+                              onTap: () => _showEditDialog(c),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.green[50],
+                                      child: Icon(Icons.local_offer, color: Colors.green),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            c.title,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            c.description,
+                                            style: const TextStyle(fontSize: 13, color: Colors.black54),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.confirmation_number, size: 14, color: Colors.grey[600]),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Qtd: ${c.quantityAvailable}',
+                                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                              ),
+                                              const SizedBox(width: 16),
+                                              Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                c.validUntil != null 
+                                                  ? 'Válido até: ${c.validUntil!.day.toString().padLeft(2, '0')}/${c.validUntil!.month.toString().padLeft(2, '0')}/${c.validUntil!.year}'
+                                                  : 'Sem validade',
+                                                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                              ),
+                                            ],
+                                          ),
                                         ],
                                       ),
-                                    );
-                                    if (ok == true) {
-                                      await repo.deleteCoupon(c.id);
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cupom excluído')));
-                                      await _loadCoupons();
-                                    }
-                                  }
-                                },
-                                itemBuilder: (ctx) => const [
-                                  PopupMenuItem(value: 'edit', child: Text('Editar')),
-                                  PopupMenuItem(value: 'decrement', child: Text('Marcar uso (-1)')),
-                                  PopupMenuItem(value: 'delete', child: Text('Excluir')),
-                                ],
+                                    ),
+                                    Icon(Icons.edit, color: Colors.grey[400]),
+                                  ],
+                                ),
                               ),
-                              subtitleTextStyle: const TextStyle(fontSize: 13),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              // show extra info below
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.green[50],
-                                child: Icon(Icons.local_offer, color: Colors.green),
-                              ),
-                              // below the title, show metadata
-                              dense: false,
-                              // Use a Column in subtitle area to display extra metadata
-                              tileColor: Colors.white,
-                              // Build a small footer under the tile using subtitle
-                              // We'll show quantity and validity
-                              
                             ),
                           );
                         }).toList(),
@@ -459,6 +510,43 @@ class _InfoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Formatter para inserir automaticamente barras em DD/MM/AAAA
+class DateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    var digits = newValue.text.replaceAll('/', '');
+    if (digits.length > 8) digits = digits.substring(0, 8);
+    String formatted = '';
+    for (int i = 0; i < digits.length; i++) {
+      formatted += digits[i];
+      if (i == 1 || i == 3) {
+        if (i != digits.length - 1) formatted += '/';
+      }
+    }
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+DateTime? _parseDate(String input) {
+  if (input.length != 10) return null; // DD/MM/AAAA
+  try {
+    final parts = input.split('/');
+    if (parts.length != 3) return null;
+    final day = int.parse(parts[0]);
+    final month = int.parse(parts[1]);
+    final year = int.parse(parts[2]);
+    final dt = DateTime(year, month, day);
+    // Validação básica: se componentes batem (ex evita 32/13/2025 virar outra data)
+    if (dt.day != day || dt.month != month || dt.year != year) return null;
+    return dt;
+  } catch (_) {
+    return null;
   }
 }
 

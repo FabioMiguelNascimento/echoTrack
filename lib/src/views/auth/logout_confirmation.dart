@@ -21,7 +21,7 @@ class _LogoutConfirmationState extends State<LogoutConfirmation> {
           width: 1,
         ),
       ),
-      title: const Text('Confirmar exclusão'),
+      title: const Text('Confirmar Saída'),
       content: const Text(
         'Tem certeza que deseja sair do aplicativo?',
       ),

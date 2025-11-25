@@ -74,3 +74,8 @@ class UserRepository {
     });
   }
 }
+
+//Fazer função para pegar os cupons das lojas
+
+//fazer função para pegar cupom de uma loja especifica e colocar em uma lista
+

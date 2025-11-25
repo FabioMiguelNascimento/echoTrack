@@ -17,6 +17,12 @@ class CouponRepository {
     return snap.docs.map((d) => CouponModel.fromDoc(d)).toList();
   }
 
+  /// Retorna todos os cupons de todas as lojas.
+  Future<List<CouponModel>> getAllCoupons() async {
+    final snap = await _db.collection(_collection).get();
+    return snap.docs.map((d) => CouponModel.fromDoc(d)).toList();
+  }
+
   Future<CouponModel?> getCouponById(String id) async {
     final doc = await _db.collection(_collection).doc(id).get();
     if (!doc.exists) return null;

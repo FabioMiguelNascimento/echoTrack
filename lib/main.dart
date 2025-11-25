@@ -18,6 +18,8 @@ import 'package:g1_g2/src/repositories/coupon_repository.dart';
 // Viewmodels
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/store/store_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/user/coupons_viewmodel.dart';
 
 // Pages
 import 'package:g1_g2/src/views/auth/login_page.dart';
@@ -94,6 +96,21 @@ class MainApp extends StatelessWidget {
             context.read<CouponRepository>(),
           ),
         ),
+
+        ChangeNotifierProvider<StoreViewModel>(
+          create: (context) => StoreViewModel(
+            context.read<StoreRepository>(),
+            context.read<CouponRepository>(),
+            context.read<AuthRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider<CouponsViewModel>(
+          create: (context) => CouponsViewModel(
+            context.read<CouponRepository>(),
+            context.read<DiscartRepository>(),
+            context.read<AuthRepository>(),
+          ),
+        ),
       ],
       child: MaterialApp(
         title: 'Seu App de Coleta',
@@ -101,6 +118,14 @@ class MainApp extends StatelessWidget {
           brightness: Brightness.light,
           primarySwatch: Colors.green,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          inputDecorationTheme: InputDecorationTheme(
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.green, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+          ),
         ),
         home: kForceLoginScreen ? const LoginPage() : const AuthWrapper(),
       ),
