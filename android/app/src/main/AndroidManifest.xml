@@ -7,6 +7,10 @@
     
     <!-- Permissões para câmera (QR Code scanner) -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Permissões para acessar imagens/arquivos do dispositivo -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Android 13+ permission for images -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     
     <!-- Features opcionais -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />

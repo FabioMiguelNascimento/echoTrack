@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'dart:io';
+
+import 'package:permission_handler/permission_handler.dart';
+import 'package:g1_g2/src/utils/permission_helper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:provider/provider.dart';
-
-
 
 class AddCollectPointFormPage extends StatefulWidget {
   const AddCollectPointFormPage({super.key});
@@ -155,6 +158,77 @@ class _AddCollectPointFormPageState extends State<AddCollectPointFormPage> {
                               ),
                             ),
                             SizedBox(height: 12),
+                            // Image selector for the collect point
+                            Center(
+                              child: Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final status =
+                                          await GalleryPermission.requestGalleryPermission(
+                                            context,
+                                          );
+                                      if (status != PermissionStatus.granted)
+                                        return;
+                                      final XFile? picked = await ImagePicker()
+                                          .pickImage(
+                                            source: ImageSource.gallery,
+                                            maxWidth: 1200,
+                                          );
+                                      if (picked != null) {
+                                        vmRead.setCreateImageFile(picked);
+                                      }
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 60,
+                                      backgroundColor: Colors.grey.shade200,
+                                      child: vm.createImageFile == null
+                                          ? Icon(
+                                              Icons.camera_alt,
+                                              size: 36,
+                                              color: Colors.grey.shade700,
+                                            )
+                                          : ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(60),
+                                              child: Image.file(
+                                                File(vm.createImageFile!.path),
+                                                fit: BoxFit.cover,
+                                                width: 120,
+                                                height: 120,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final status =
+                                          await GalleryPermission.requestGalleryPermission(
+                                            context,
+                                          );
+                                      if (status != PermissionStatus.granted)
+                                        return;
+                                      final XFile? picked = await ImagePicker()
+                                          .pickImage(
+                                            source: ImageSource.gallery,
+                                            maxWidth: 1200,
+                                          );
+                                      if (picked != null)
+                                        vmRead.setCreateImageFile(picked);
+                                    },
+                                    child: const Text('Selecionar imagem'),
+                                  ),
+                                  if (vm.createImageFile != null)
+                                    TextButton(
+                                      onPressed: () {
+                                        vmRead.setCreateImageFile(null);
+                                      },
+                                      child: const Text('Remover imagem'),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 12),
                             Container(
                               padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
@@ -164,7 +238,11 @@ class _AddCollectPointFormPageState extends State<AddCollectPointFormPage> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.location_on, color: Color(0xff0EA5E9), size: 20),
+                                  Icon(
+                                    Icons.location_on,
+                                    color: Color(0xff0EA5E9),
+                                    size: 20,
+                                  ),
                                   SizedBox(width: 8),
                                   Expanded(
                                     child: Text(

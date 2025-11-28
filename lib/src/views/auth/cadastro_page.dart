@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:provider/provider.dart';
 import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart'; // Importe seu VM
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'package:g1_g2/src/utils/permission_helper.dart';
-import 'package:permission_handler/permission_handler.dart';
+// No image selection on account signup; images are handled in store registration
 
 class CadastroPage extends StatelessWidget {
   const CadastroPage({super.key});
@@ -51,63 +48,6 @@ class CadastroPage extends StatelessWidget {
               vm.enderecoLojaController,
               "Endereço da Loja",
               TextInputType.text,
-            ),
-            SizedBox(height: 12),
-            // Seletor de imagem da loja
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text('Foto da loja', style: TextStyle(fontSize: 14)),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                // Preview da imagem, se houver
-                if (vm.storeImage != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(vm.storeImage!.path),
-                      width: 96,
-                      height: 96,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                else
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(Icons.store, color: Colors.grey[600]),
-                  ),
-                SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    // Solicita permissão e abre o seletor de imagens
-                    final status =
-                        await GalleryPermission.requestGalleryPermission(
-                          context,
-                        );
-                    if (!status.isGranted) return;
-
-                    final XFile? file = await ImagePicker().pickImage(
-                      source: ImageSource.gallery,
-                      imageQuality: 80,
-                      maxWidth: 1200,
-                    );
-                    if (file != null) {
-                      vm.setStoreImage(file);
-                    }
-                  },
-                  icon: Icon(Icons.photo_library),
-                  label: Text('Selecionar foto'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff00A63E),
-                  ),
-                ),
-              ],
             ),
           ],
         );

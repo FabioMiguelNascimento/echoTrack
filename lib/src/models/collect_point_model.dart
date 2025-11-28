@@ -1,6 +1,7 @@
 class CollectPointModel {
   final String? id;
   final String name;
+  final String? imageUrl;
   final Address address;
   final bool isActive;
   final List<String> trashTypes;
@@ -9,6 +10,7 @@ class CollectPointModel {
   CollectPointModel({
     this.id,
     required this.name,
+    this.imageUrl,
     required this.address,
     required this.isActive,
     required this.trashTypes,
@@ -19,6 +21,7 @@ class CollectPointModel {
     return CollectPointModel(
       id: id,
       name: json['name'],
+      imageUrl: json['imageUrl'] as String?,
       address: Address.fromJSON(json['address']),
       isActive: json['isActive'],
       trashTypes: List<String>.from(json['trashTypes'] ?? []),
@@ -28,6 +31,7 @@ class CollectPointModel {
 
   Map<String, dynamic> toJSON() {
     return {
+      if (imageUrl != null) 'imageUrl': imageUrl,
       'name': name,
       'address': address.toJSON(),
       'isActive': isActive,

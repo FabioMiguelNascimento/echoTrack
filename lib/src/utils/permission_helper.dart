@@ -74,8 +74,16 @@ extension GalleryPermission on PermissionHelper {
     // Android: use storage (or READ_MEDIA_IMAGES on Android 13+, permission_handler
     // will map Permission.photos appropriately in newer versions).
     if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
+      // On Android 13+ the correct permission is READ_MEDIA_IMAGES which is
+      // mapped by permission_handler to Permission.photos. Try requesting
+      // Permission.photos first so newer devices get the fine-grained prompt.
+      PermissionStatus status = await Permission.photos.request();
       if (status.isGranted) return status;
+
+      // Fallback to legacy storage permission for older devices / SDKs.
+      status = await Permission.storage.request();
+      if (status.isGranted) return status;
+
       if (status.isPermanentlyDenied) {
         final open = await showDialog<bool>(
           context: context,

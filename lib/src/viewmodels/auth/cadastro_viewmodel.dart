@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/src/models/admin_model.dart';
 import 'package:g1_g2/src/models/normal_user_model.dart';
 import 'package:g1_g2/src/models/store_model.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:g1_g2/src/models/base/user_base_model.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
@@ -42,13 +41,7 @@ class CadastroViewModel extends BaseViewModel {
   final TextEditingController cnpjController = TextEditingController();
   final TextEditingController enderecoLojaController = TextEditingController();
 
-  // Imagem da loja (selecionada pelo usuário durante o cadastro)
-  XFile? storeImage;
-
-  void setStoreImage(XFile? file) {
-    storeImage = file;
-    notifyListeners();
-  }
+  // No image stored here - store image selection is handled in store registration
 
   /// Tenta cadastrar um novo usuário. Retorna [true] se for sucesso.
   Future<bool> cadastrar() async {

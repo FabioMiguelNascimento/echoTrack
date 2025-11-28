@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+
 import 'package:g1_g2/components/custom_checkbox_tile.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
+import 'package:g1_g2/src/utils/permission_helper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +34,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
   // Sinaliza se o initState falhou (ex: ponto nulo)
   bool _isLoadingError = false;
   bool _isAdmin = false;
+  XFile? _selectedImage;
 
   @override
   void initState() {
@@ -196,6 +202,88 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                               style: TextStyle(fontSize: 20),
                             ),
                           ),
+                          SizedBox(height: 12),
+                          // Image preview / selector
+                          Center(
+                            child: Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    final status =
+                                        await GalleryPermission.requestGalleryPermission(
+                                          context,
+                                        );
+                                    if (status != PermissionStatus.granted)
+                                      return;
+                                    final XFile? picked = await ImagePicker()
+                                        .pickImage(
+                                          source: ImageSource.gallery,
+                                          maxWidth: 1200,
+                                        );
+                                    if (picked != null) {
+                                      setState(() => _selectedImage = picked);
+                                    }
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 60,
+                                    backgroundColor: Colors.grey.shade200,
+                                    child: _selectedImage == null
+                                        ? (vm.selectedPoint?.imageUrl == null
+                                              ? Icon(
+                                                  Icons.camera_alt,
+                                                  size: 36,
+                                                  color: Colors.grey.shade700,
+                                                )
+                                              : ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(60),
+                                                  child: Image.network(
+                                                    vm.selectedPoint!.imageUrl!,
+                                                    width: 120,
+                                                    height: 120,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ))
+                                        : ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              60,
+                                            ),
+                                            child: Image.file(
+                                              File(_selectedImage!.path),
+                                              width: 120,
+                                              height: 120,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final status =
+                                        await GalleryPermission.requestGalleryPermission(
+                                          context,
+                                        );
+                                    if (status != PermissionStatus.granted)
+                                      return;
+                                    final XFile? picked = await ImagePicker()
+                                        .pickImage(
+                                          source: ImageSource.gallery,
+                                          maxWidth: 1200,
+                                        );
+                                    if (picked != null)
+                                      setState(() => _selectedImage = picked);
+                                  },
+                                  child: const Text('Selecionar imagem'),
+                                ),
+                                if (_selectedImage != null)
+                                  TextButton(
+                                    onPressed: () =>
+                                        setState(() => _selectedImage = null),
+                                    child: const Text('Remover imagem'),
+                                  ),
+                              ],
+                            ),
+                          ),
                           SizedBox(height: 20),
                           Text('Nome:'),
                           _buildTextField(
@@ -342,6 +430,29 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                         return;
                                       }
 
+                                      String? uploadedImageUrl;
+                                      if (_selectedImage != null) {
+                                        try {
+                                          uploadedImageUrl = await vmRead
+                                              .uploadImageForSelectedPoint(
+                                                _selectedImage!,
+                                              );
+                                        } catch (e) {
+                                          // If upload fails, show a message but allow update without changing image
+                                          if (localContext.mounted) {
+                                            ScaffoldMessenger.of(
+                                              localContext,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Falha ao enviar imagem: $e',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      }
+
                                       final success = await vmRead
                                           .updatePointFromForm(
                                             name: _nameController.text.trim(),
@@ -359,6 +470,7 @@ class _EditCollectPointFormPageState extends State<EditCollectPointFormPage> {
                                             number: _numberController.text
                                                 .trim(),
                                             trashTypes: _selectedTrashTypes,
+                                            imageUrl: uploadedImageUrl,
                                           );
 
                                       if (!localContext.mounted) return;

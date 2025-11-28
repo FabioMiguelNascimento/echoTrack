@@ -4,6 +4,7 @@ import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/models/feedback_model.dart';
 import 'package:g1_g2/src/repositories/collect_point_repository.dart';
 import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:g1_g2/src/viewmodels/admin/dtos/point_card_data.dart';
 import 'package:g1_g2/src/viewmodels/admin/dtos/point_edit_data.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
@@ -16,10 +17,26 @@ class PontosViewmodel extends BaseViewModel {
 
   PontosViewmodel(this._repository, this._userRepository);
 
+  // Optional image file used while creating a point (set by the view)
+  XFile? createImageFile;
+
+  void setCreateImageFile(XFile? file) {
+    createImageFile = file;
+    notifyListeners();
+  }
+
+  /// Uploads an image file for the currently selected point and returns the image URL.
+  Future<String> uploadImageForSelectedPoint(XFile file) async {
+    final String? pointId = _selectedPoint?.id;
+    if (pointId == null)
+      throw Exception('Nenhum ponto selecionado para fazer upload');
+    return await _repository.uploadCollectPointImage(pointId, file);
+  }
+
   List<CollectPointModel> _points = [];
-  
+
   List<CollectPointModel> get allPoints => _points;
-  
+
   List<PointCardData> get pointCards {
     return _points
         .where((p) => p.id != null) // Garante que não há pontos sem ID
@@ -166,8 +183,8 @@ class PontosViewmodel extends BaseViewModel {
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
         }
-        
-        if (permission != LocationPermission.denied && 
+
+        if (permission != LocationPermission.denied &&
             permission != LocationPermission.deniedForever) {
           currentPosition = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high,
@@ -202,11 +219,38 @@ class PontosViewmodel extends BaseViewModel {
         qrCodeId: qrCodeId,
       );
 
-      // Salvar no repositório
-      await _repository.adicionarPontoColeta(novoPonto);
+      // Salvar no repositório e obter o id do documento criado
+      final createdId = await _repository.adicionarPontoColeta(novoPonto);
+
+      // Se o usuário selecionou uma imagem durante o cadastro, faça o upload
+      if (createImageFile != null) {
+        try {
+          final imageUrl = await _repository.uploadCollectPointImage(
+            createdId,
+            createImageFile!,
+          );
+          // Atualiza o documento com a URL da imagem
+          final updatedWithImage = CollectPointModel(
+            id: createdId,
+            name: novoPonto.name,
+            imageUrl: imageUrl,
+            address: novoPonto.address,
+            isActive: novoPonto.isActive,
+            trashTypes: novoPonto.trashTypes,
+            qrCodeId: novoPonto.qrCodeId,
+          );
+          await _repository.atualizarPontoColeta(createdId, updatedWithImage);
+        } catch (e) {
+          // Não falha todo o cadastro por causa do upload; apenas registra o erro
+          print('Erro ao fazer upload da imagem do ponto: $e');
+        }
+      }
 
       // --- SUCESSO ---
       clearCreateForm(); // 1. Limpa os campos do formulário
+      // limpa a imagem selecionada
+      createImageFile = null;
+      notifyListeners();
       await loadCollectPoints(); // 2. Recarrega a lista na home (já notifica)
       return true;
     } catch (e) {
@@ -230,6 +274,7 @@ class PontosViewmodel extends BaseViewModel {
     required String neighborhood,
     required String number,
     required List<String> trashTypes,
+    String? imageUrl,
   }) async {
     // A View não sabe o ID, mas o ViewModel sabe!
     final String? pointId = _selectedPoint?.id;
@@ -245,6 +290,7 @@ class PontosViewmodel extends BaseViewModel {
       final updatedModel = CollectPointModel(
         id: pointId,
         name: name,
+        imageUrl: imageUrl,
         address: Address(
           street: street,
           neighborhood: neighborhood,

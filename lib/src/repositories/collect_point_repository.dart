@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:g1_g2/src/models/feedback_model.dart';
 
@@ -6,11 +10,49 @@ class CollectPointRepository {
   final _db = FirebaseFirestore.instance;
   final String _collectionPath = 'pontosDeColeta';
 
-  Future<void> adicionarPontoColeta(CollectPointModel novoPonto) async {
+  /// Adiciona um ponto de coleta e retorna o id do documento criado
+  Future<String> adicionarPontoColeta(CollectPointModel novoPonto) async {
     try {
-      await _db.collection(_collectionPath).add(novoPonto.toJSON());
+      final docRef = await _db
+          .collection(_collectionPath)
+          .add(novoPonto.toJSON());
+      return docRef.id;
     } catch (e) {
       throw Exception('Erro ao salvar ponto de coleta: $e');
+    }
+  }
+
+  /// Faz upload de uma imagem para o Storage sob `pontosDeColeta/{pointId}/` e retorna a URL
+  Future<String> uploadCollectPointImage(String pointId, XFile file) async {
+    try {
+      final storage = FirebaseStorage.instance;
+      final ref = storage
+          .ref()
+          .child('pontosDeColeta')
+          .child(pointId)
+          .child('avatar_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final localFile = File(file.path);
+      if (!await localFile.exists()) {
+        throw Exception('Arquivo não encontrado no caminho: ${file.path}');
+      }
+
+      String contentType = 'application/octet-stream';
+      final lower = file.path.toLowerCase();
+      if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+        contentType = 'image/jpeg';
+      } else if (lower.endsWith('.png')) {
+        contentType = 'image/png';
+      }
+
+      final metadata = SettableMetadata(contentType: contentType);
+      final uploadTask = ref.putFile(localFile, metadata);
+      await uploadTask;
+      final url = await ref.getDownloadURL();
+      return url;
+    } on FirebaseException catch (e) {
+      throw Exception('FirebaseStorage error (${e.code}): ${e.message}');
+    } catch (e) {
+      throw Exception('Erro ao enviar imagem: $e');
     }
   }
 
@@ -95,7 +137,8 @@ class CollectPointRepository {
   ) async {
     // --- VALIDAÇÃO DE SEGURANÇA ---
     if (pointId.isEmpty) throw Exception("ID do Ponto é inválido (vazio)");
-    if (feedbackId.isEmpty) throw Exception("ID do Feedback é inválido (vazio)");
+    if (feedbackId.isEmpty)
+      throw Exception("ID do Feedback é inválido (vazio)");
     try {
       await _db
           .collection(_collectionPath)

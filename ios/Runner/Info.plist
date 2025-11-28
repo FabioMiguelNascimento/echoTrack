@@ -47,5 +47,9 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>O app precisa acessar o microfone para permitir busca por voz nos pontos de coleta.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O app precisa acessar suas fotos para que você possa selecionar uma imagem para a loja.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>O app pode salvar imagens na sua biblioteca ao atualizar a foto da loja.</string>
 </dict>
 </plist>

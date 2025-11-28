@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:g1_g2/src/models/discart_model.dart';
 import 'package:g1_g2/src/repositories/auth_repository.dart';
 import 'package:g1_g2/src/repositories/discart_repository.dart';
+import 'package:g1_g2/src/repositories/user_repository.dart';
+import 'package:g1_g2/src/repositories/coupon_repository.dart';
 import 'package:g1_g2/src/viewmodels/base_viewmodel.dart';
 
 class DiscartViewmodel extends BaseViewModel {
   final DiscartRepository _discartRepository;
   final AuthRepository _authRepository;
+  final UserRepository _userRepository;
+  final CouponRepository _couponRepository;
 
-  DiscartViewmodel(this._discartRepository, this._authRepository);
+  DiscartViewmodel(this._discartRepository, this._authRepository, this._userRepository, this._couponRepository);
 
   /* ----------------- FORMULÁRIO PARA REGISTRO DE DESCARTE ----------------- */
 
@@ -168,6 +172,17 @@ class DiscartViewmodel extends BaseViewModel {
     setLoading(true);
     try {
       await _discartRepository.updateStatus(uid, status);
+
+      if (status == 'concluido') {
+        final user = _authRepository.currentUser;
+        if (user != null) {
+          // incrementa e obtém o novo total
+          final newCount = await _userRepository.incrementCollections(user.uid, 1);
+          // chama o repositório de cupons para conceder cupons elegíveis
+          await _couponRepository.grantEligibleCouponsForUser(userId: user.uid, userCollectionsCount: newCount);
+        }
+      }
+
       await loadUserHistory(); // Recarrega a lista para exibir a mudança
       notifyListeners();
     } catch (e) {
