@@ -1,60 +1,26 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:g1_g2/src/models/collect_point_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:g1_g2/src/providers/route_provider.dart';
-import 'package:g1_g2/src/utils/map_controller.dart';
+import 'package:g1_g2/src/models/collect_point_model.dart';
 
-class MapWidget extends StatefulWidget {
+class RouteMapWidget extends StatefulWidget {
   final List<CollectPointModel> collectPoints;
   final Function(CollectPointModel)? onMarkerTap;
+  final bool showRouteDetails;
 
-  const MapWidget({super.key, this.collectPoints = const [], this.onMarkerTap});
-
-  // Permite chamar a ação de seguir rota a partir da lista/detalhes
-  static _MapWidgetState? of(BuildContext context) {
-    final state = context.findAncestorStateOfType<_MapWidgetState>();
-    return state;
-  }
+  const RouteMapWidget({
+    super.key,
+    this.collectPoints = const [],
+    this.onMarkerTap,
+    this.showRouteDetails = true,
+  });
 
   @override
-  State<MapWidget> createState() => _MapWidgetState();
+  State<RouteMapWidget> createState() => _RouteMapWidgetState();
 }
 
-class _MapWidgetState extends State<MapWidget> {
-  // Função para seguir rota até o ponto de coleta (usada no InfoWindow)
-  Future<void> _handleFollowRoute(CollectPointModel point) async {
-    if (point.address.cords != null) {
-      try {
-        final lat = double.parse(point.address.cords!.lat);
-        final lon = double.parse(point.address.cords!.lon);
-        final destino = LatLng(lat, lon);
-
-        final routeProvider = context.read<RouteProvider>();
-        await routeProvider.getCurrentLocation();
-        final origem = routeProvider.currentLocation;
-
-        if (origem != null) {
-          _showRouteLoadingDialog();
-          await routeProvider.fetchRoute(startPoint: origem, endPoint: destino);
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-          _updateRouteOnMap(routeProvider);
-        }
-      } catch (e) {
-        print('Erro ao seguir rota: $e');
-      }
-    }
-  }
-
-  // Método público para seguir rota a partir da lista/detalhes
-  Future<void> followRouteToPoint(CollectPointModel point) async {
-    await _handleMarkerTap(point);
-  }
-
+class _RouteMapWidgetState extends State<RouteMapWidget> {
   static const LatLng _initialLatLng = LatLng(
     -29.6391109131419,
     -50.78701746008162,
@@ -65,18 +31,15 @@ class _MapWidgetState extends State<MapWidget> {
   Set<Marker> _routeMarkers = {};
   Set<Polyline> _polylines = {};
   LatLng? _selectedDestination;
-  CollectPointModel? _selectedPoint;
 
   @override
   void initState() {
     super.initState();
     _createMarkers();
-    // Registra a callback de seguir rota para uso global
-    MapController.registerFollowCallback(followRouteToPoint);
   }
 
   @override
-  void didUpdateWidget(MapWidget oldWidget) {
+  void didUpdateWidget(RouteMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.collectPoints != widget.collectPoints) {
       _createMarkers();
@@ -108,9 +71,6 @@ class _MapWidgetState extends State<MapWidget> {
                     : BitmapDescriptor.hueRed,
               ),
               onTap: () {
-                if (widget.onMarkerTap != null) {
-                  widget.onMarkerTap!(point);
-                }
                 _handleMarkerTap(point);
               },
             ),
@@ -120,7 +80,6 @@ class _MapWidgetState extends State<MapWidget> {
         }
       }
     }
-    // ...existing code...
 
     setState(() {
       _markers = markers;
@@ -131,39 +90,23 @@ class _MapWidgetState extends State<MapWidget> {
     }
   }
 
-  void _fitMarkersInView() {
-    if (_markers.isEmpty || _mapController == null) return;
-
-    double minLat = 90, maxLat = -90;
-    double minLon = 180, maxLon = -180;
-
-    for (final marker in _markers) {
-      final pos = marker.position;
-      if (pos.latitude < minLat) minLat = pos.latitude;
-      if (pos.latitude > maxLat) maxLat = pos.latitude;
-      if (pos.longitude < minLon) minLon = pos.longitude;
-      if (pos.longitude > maxLon) maxLon = pos.longitude;
+  Future<void> _handleMarkerTap(CollectPointModel point) async {
+    if (widget.onMarkerTap != null) {
+      widget.onMarkerTap!(point);
     }
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLon),
-      northeast: LatLng(maxLat, maxLon),
-    );
-
-    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-  }
-
-  Future<void> _handleMarkerTap(CollectPointModel point) async {
-    _selectedPoint = point;
+    // Obtém a localização do ponto selecionado
     if (point.address.cords != null) {
       try {
         final lat = double.parse(point.address.cords!.lat);
         final lon = double.parse(point.address.cords!.lon);
         _selectedDestination = LatLng(lat, lon);
 
+        // Usa o RouteProvider para obter a rota
         if (mounted) {
           final routeProvider = context.read<RouteProvider>();
 
+          // Obtém a localização atual se ainda não tiver
           if (routeProvider.currentLocation == null) {
             await routeProvider.getCurrentLocation();
           }
@@ -171,17 +114,21 @@ class _MapWidgetState extends State<MapWidget> {
           final startLocation = routeProvider.currentLocation;
 
           if (startLocation != null) {
+            // Mostra loading
             _showRouteLoadingDialog();
 
+            // Busca a rota
             await routeProvider.fetchRoute(
               startPoint: startLocation,
               endPoint: _selectedDestination!,
             );
 
+            // Fecha o loading
             if (mounted) {
               Navigator.of(context).pop();
             }
 
+            // Atualiza os marcadores e polilinhas no mapa
             _updateRouteOnMap(routeProvider);
           }
         }
@@ -197,15 +144,10 @@ class _MapWidgetState extends State<MapWidget> {
       _routeMarkers = routeProvider.markers;
     });
 
-    // Sempre mostra o BottomSheet se a rota foi calculada
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (routeProvider.currentRoute != null && _selectedPoint != null) {
-        _showRouteDetailsBottomSheet(
-          routeProvider.currentRoute!,
-          _selectedPoint!,
-        );
-      }
-    });
+    // Mostra detalhes da rota se configurado
+    if (widget.showRouteDetails && routeProvider.currentRoute != null) {
+      _showRouteDetailsBottomSheet(routeProvider.currentRoute!);
+    }
   }
 
   void _showRouteLoadingDialog() {
@@ -230,15 +172,15 @@ class _MapWidgetState extends State<MapWidget> {
     );
   }
 
-  void _showRouteDetailsBottomSheet(dynamic route, CollectPointModel point) {
+  void _showRouteDetailsBottomSheet(dynamic route) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.5,
-          maxChildSize: 0.8,
+          initialChildSize: 0.4,
+          maxChildSize: 0.7,
           builder: (BuildContext context, ScrollController scrollController) {
             return Container(
               padding: const EdgeInsets.all(20.0),
@@ -255,6 +197,7 @@ class _MapWidgetState extends State<MapWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Indicador de drag
                     Center(
                       child: Container(
                         width: 40,
@@ -266,44 +209,40 @@ class _MapWidgetState extends State<MapWidget> {
                         ),
                       ),
                     ),
-                    Text(
-                      'Rota para ${point.name}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Text(
+                      'Detalhes da Rota',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 20),
-                    _buildRouteDetailCard(
-                      'Distância Total',
+                    const SizedBox(height: 16),
+                    _buildRouteDetailItem(
+                      'Distância',
                       '${(route.distanceInMeters / 1000).toStringAsFixed(2)} km',
                       Icons.directions,
-                      Colors.blue,
                     ),
                     const SizedBox(height: 12),
-                    _buildRouteDetailCard(
+                    _buildRouteDetailItem(
                       'Tempo Estimado',
                       _formatDuration(route.estimatedDuration),
                       Icons.schedule,
-                      Colors.orange,
                     ),
                     const SizedBox(height: 12),
-                    _buildRouteDetailCard(
-                      'Tipo de Lixo',
-                      point.trashTypes.join(', '),
-                      Icons.delete,
-                      Colors.green,
+                    _buildRouteDetailItem(
+                      'Origem',
+                      route.startAddress,
+                      Icons.location_on,
                     ),
                     const SizedBox(height: 12),
-                    _buildRouteDetailCard(
-                      'Status',
-                      point.isActive ? 'Ativo' : 'Inativo',
-                      Icons.info,
-                      point.isActive ? Colors.green : Colors.red,
+                    _buildRouteDetailItem(
+                      'Destino',
+                      route.endAddress,
+                      Icons.location_on,
                     ),
                     const SizedBox(height: 24),
+                    // Botões de ação
                     Row(
                       children: [
+                        // Botão Recusar
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {
@@ -311,24 +250,27 @@ class _MapWidgetState extends State<MapWidget> {
                               _clearRoute();
                             },
                             icon: const Icon(Icons.close),
-                            label: const Text('Cancelar'),
+                            label: const Text('Recusar'),
                             style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
                               side: const BorderSide(color: Colors.red),
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
+                        // Botão Aceitar
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.pop(context);
-                              _startFollowingRoute(point);
+                              _startFollowingRoute();
                             },
-                            icon: const Icon(Icons.navigation),
-                            label: const Text('Seguir Rota'),
+                            icon: const Icon(Icons.check_circle),
+                            label: const Text('Aceitar Rota'),
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
                             ),
@@ -346,22 +288,16 @@ class _MapWidgetState extends State<MapWidget> {
     );
   }
 
-  Widget _buildRouteDetailCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildRouteDetailItem(String label, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: Colors.grey[100],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
+          Icon(icon, color: Colors.blue, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -369,8 +305,8 @@ class _MapWidgetState extends State<MapWidget> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: Colors.grey[600],
+                  style: const TextStyle(
+                    color: Colors.grey,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -402,26 +338,37 @@ class _MapWidgetState extends State<MapWidget> {
     return '$minutes min';
   }
 
-  void _startFollowingRoute(CollectPointModel point) {
-    final routeProvider = context.read<RouteProvider>();
-    if (routeProvider.currentRoute != null &&
-        routeProvider.currentRoute!.polylinePoints.isNotEmpty) {
-      // Centraliza a câmera na rota
-      routeProvider.animateToLocation(
-        routeProvider.currentRoute!.polylinePoints.first,
-      );
-      setState(() {
-        _polylines = routeProvider.polylines;
-        _routeMarkers = routeProvider.markers;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Seguindo rota para ${point.name}...'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: Colors.green,
-        ),
-      );
+  void _startFollowingRoute() {
+    // Aqui você pode iniciar o rastreamento da rota
+    // Por exemplo, iniciar um stream de localização em tempo real
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Seguindo rota...'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _fitMarkersInView() {
+    if (_markers.isEmpty || _mapController == null) return;
+
+    double minLat = 90, maxLat = -90;
+    double minLon = 180, maxLon = -180;
+
+    for (final marker in _markers) {
+      final pos = marker.position;
+      if (pos.latitude < minLat) minLat = pos.latitude;
+      if (pos.latitude > maxLat) maxLat = pos.latitude;
+      if (pos.longitude < minLon) minLon = pos.longitude;
+      if (pos.longitude > maxLon) maxLon = pos.longitude;
     }
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLon),
+      northeast: LatLng(maxLat, maxLon),
+    );
+
+    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
   }
 
   void _clearRoute() {
@@ -429,7 +376,6 @@ class _MapWidgetState extends State<MapWidget> {
       _polylines.clear();
       _routeMarkers.clear();
       _selectedDestination = null;
-      _selectedPoint = null;
     });
   }
 
@@ -438,7 +384,7 @@ class _MapWidgetState extends State<MapWidget> {
     return Stack(
       children: [
         GoogleMap(
-          initialCameraPosition: CameraPosition(
+          initialCameraPosition: const CameraPosition(
             target: _initialLatLng,
             zoom: 13,
           ),
@@ -458,12 +404,8 @@ class _MapWidgetState extends State<MapWidget> {
               });
             }
           },
-          gestureRecognizers: {
-            Factory<OneSequenceGestureRecognizer>(
-              () => EagerGestureRecognizer(),
-            ),
-          },
         ),
+        // Botão para limpar a rota
         if (_selectedDestination != null)
           Positioned(
             top: 16,
@@ -481,8 +423,6 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   void dispose() {
     _mapController?.dispose();
-    // Limpa registro no MapController para evitar callbacks para widget descartado
-    MapController.clear();
     super.dispose();
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
+import 'package:g1_g2/src/utils/permission_helper.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:g1_g2/src/views/user/voice_search_points_page.dart';
 import 'package:g1_g2/components/custom_map.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/user/user_viewmodel.dart';
@@ -112,6 +115,25 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
             ],
           ),
         ),
+        // Ícone de Busca por voz (pede permissão e abre busca)
+        IconButton(
+          onPressed: () async {
+            final status = await PermissionHelper.requestMicrophonePermission(
+              context,
+            );
+            if (status == PermissionStatus.granted) {
+              if (context.mounted) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const VoiceSearchPointsPage(),
+                  ),
+                );
+              }
+            }
+          },
+          icon: const Icon(Icons.mic),
+          color: Colors.black87,
+        ),
         // Ícone de Perfil (Navega para ProfilePage)
         IconButton(
           onPressed: () async {
@@ -140,7 +162,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
   Widget _buildMapCard() {
     final pontosVm = context.watch<PontosViewmodel>();
-    
+
     return Container(
       height: 440, // Altura definida para o mapa
       decoration: BoxDecoration(
@@ -159,12 +181,14 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
         child: Stack(
           children: [
             MapWidget(
-              collectPoints: pontosVm.allPoints.where((p) => p.isActive).toList(),
+              collectPoints: pontosVm.allPoints
+                  .where((p) => p.isActive)
+                  .toList(),
               onMarkerTap: (point) {
                 _showPointDetails(context, point);
               },
             ),
-            
+
             if (pontosVm.allPoints.isNotEmpty)
               Positioned(
                 top: 12,

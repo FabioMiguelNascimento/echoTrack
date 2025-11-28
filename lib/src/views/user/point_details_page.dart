@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../utils/permission_helper.dart';
+import '../../utils/map_controller.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
@@ -21,6 +23,10 @@ class PointDetailsPage extends StatefulWidget {
 }
 
 class _PointDetailsPageState extends State<PointDetailsPage> {
+  Future<void> _requestMicrophonePermission() async {
+    await PermissionHelper.requestMicrophonePermission(context);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +35,8 @@ class _PointDetailsPageState extends State<PointDetailsPage> {
       context.read<PontosViewmodel>().selectPoint(widget.pointId);
       // Carrega os comentários
       context.read<PontosViewmodel>().loadFeedbacks(widget.pointId);
+      // Solicita permissão para microfone ao abrir a tela
+      _requestMicrophonePermission();
     });
   }
 
@@ -124,6 +132,20 @@ class _PointDetailsPageState extends State<PointDetailsPage> {
                                   ),
                                 )
                                 .toList(),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.navigation),
+                            label: const Text('Seguir rota'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size.fromHeight(48),
+                            ),
+                            onPressed: () {
+                              // Solicita ao MapController que siga a rota (funciona em BottomSheets)
+                              MapController.followRouteToPoint(ponto);
+                            },
                           ),
                         ],
                       ),
@@ -281,7 +303,10 @@ class _PointDetailsPageState extends State<PointDetailsPage> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.send_rounded, color: Color(0xFF00A63E)),
+                      : const Icon(
+                          Icons.send_rounded,
+                          color: Color(0xFF00A63E),
+                        ),
                 ),
               ],
             ),

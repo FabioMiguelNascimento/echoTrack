@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:g1_g2/components/custom_initial_layout.dart';
 import 'package:g1_g2/components/custom_voltar_text_buttom.dart';
+import 'package:g1_g2/src/utils/permission_helper.dart';
+import 'package:g1_g2/src/views/user/voice_search_points_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:g1_g2/src/views/user/point_details_page.dart';
 import 'package:provider/provider.dart';
@@ -102,7 +105,30 @@ class _NearPointsPageState extends State<NearPointsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(children: [CustomVoltarTextButtom()]),
+                Row(
+                  children: [
+                    CustomVoltarTextButtom(),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () async {
+                        final status =
+                            await PermissionHelper.requestMicrophonePermission(
+                              context,
+                            );
+                        if (status == PermissionStatus.granted) {
+                          if (context.mounted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const VoiceSearchPointsPage(),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.mic, color: Color(0xFF00A63E)),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
                 const Text(
                   'Pontos de coleta do município',

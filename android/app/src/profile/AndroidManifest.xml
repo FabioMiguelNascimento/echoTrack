@@ -4,4 +4,14 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Permissão para microfone (requerida para busca por voz) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <application>
+        <!-- Chave da API do Google Maps -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="SUA_API_KEY_AQUI"/>
+    </application>
 </manifest>

@@ -6,6 +6,8 @@ import 'package:g1_g2/src/repositories/user_repository.dart';
 import 'package:g1_g2/src/viewmodels/admin/pontos_viewmodel.dart';
 import 'package:provider/provider.dart';
 
+
+
 class AddCollectPointFormPage extends StatefulWidget {
   const AddCollectPointFormPage({super.key});
 

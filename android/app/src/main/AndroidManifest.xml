@@ -2,6 +2,8 @@
     <!-- Permissões de localização -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Permissão para microfone (requerida para busca por voz) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     
     <!-- Permissões para câmera (QR Code scanner) -->
     <uses-permission android:name="android.permission.CAMERA" />
