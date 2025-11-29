@@ -143,8 +143,8 @@ class _PointDetailsPageState extends State<PointDetailsPage> {
                               minimumSize: const Size.fromHeight(48),
                             ),
                             onPressed: () {
-                              // Solicita ao MapController que siga a rota (funciona em BottomSheets)
-                              MapController.followRouteToPoint(ponto);
+                              // WidgetsBinding.instance.addPostFrameCallback((_) {
+                                MapController.followRouteToPoint(ponto); // botão de rota
                             },
                           ),
                         ],

@@ -20,6 +20,7 @@ import 'package:g1_g2/src/viewmodels/auth/cadastro_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/auth/login_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/store/store_viewmodel.dart';
 import 'package:g1_g2/src/viewmodels/user/coupons_viewmodel.dart';
+import 'package:g1_g2/src/viewmodels/user/route_provider.dart';
 
 // Pages
 import 'package:g1_g2/src/views/auth/login_page.dart';
@@ -88,6 +89,10 @@ class MainApp extends StatelessWidget {
           ),
         ),
 
+        ChangeNotifierProvider<RouteProvider>(
+          create: (_) => RouteProvider(),
+        ),
+        
         ChangeNotifierProvider(
           create: (context) => DiscartViewmodel(
             context.read<DiscartRepository>(),

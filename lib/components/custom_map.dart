@@ -72,8 +72,24 @@ class _MapWidgetState extends State<MapWidget> {
     super.initState();
     _createMarkers();
     // Registra a callback de seguir rota para uso global
-    MapController.registerFollowCallback(followRouteToPoint);
+    MapController.registerFollowCallback((followRouteToPoint, context) async {
+      // context.read<RouteProvider>().fetchRoute(
+      //   startPoint: LatLng(1221, 1221),
+      //   endPoint: LatLng(1221, 1221),
+      // );
+    }, context);
   }
+  //   @override
+  // void initState() {
+  //   super.initState();
+  //   _createMarkers();
+  //   // Registra a callback de seguir rota para uso global
+  //   MapController.registerFollowCallback((followRouteToPoint, context) {
+  //     context.read<RouteProvider>.followRouteToPoint(followRouteToPoint);
+  //   }
+  //   context
+  //   )
+  // }
 
   @override
   void didUpdateWidget(MapWidget oldWidget) {

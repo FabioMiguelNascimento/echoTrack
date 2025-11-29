@@ -1,22 +1,42 @@
+import 'package:flutter/widgets.dart';
 import 'package:g1_g2/src/models/collect_point_model.dart';
 
-typedef FollowRouteCallback = Future<void> Function(CollectPointModel point);
+typedef RequestRouteCallback = Future<void> Function(CollectPointModel point, BuildContext context);
 
 class MapController {
-  static FollowRouteCallback? _followCb;
+  static RequestRouteCallback? _callback;
+  static BuildContext? _context;
 
-  /// Register a callback provided by the map widget to follow a route.
-  static void registerFollowCallback(FollowRouteCallback cb) {
-    _followCb = cb;
+
+  /// para rotas
+  static void registerCallback(RequestRouteCallback callback, BuildContext context) {
+    _callback = callback;
+    _context = context;
   }
 
-  /// Unregister the callback (optional)
-  static void clear() {
-    _followCb = null;
+  static void clearCallback() {
+    _callback = null;
   }
 
-  /// Request the map to follow a route to [point]. Returns null if not available.
+  static Future<void>? requestRoute(CollectPointModel point) {
+    if (_callback == null || _context == null) {
+      return null;
+    }
+    return _callback?.call(point, _context!);
+  }
+  /// usado em point_details_page e voice_search_points_page
   static Future<void>? followRouteToPoint(CollectPointModel point) {
-    return _followCb?.call(point);
+    return requestRoute(point);
+  }
+
+  /// usado em custom_map
+  static void registerFollowCallback(RequestRouteCallback callback, BuildContext context) {
+    if (_callback != null) return; 
+    registerCallback(callback, context);
+  }
+
+  /// usado em custom_map
+  static void clear() {
+    clearCallback();
   }
 }
